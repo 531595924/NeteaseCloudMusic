@@ -140,7 +140,7 @@ let config = {
   //开发环境暂时关闭
   baseURL: "http://localhost:3000/",
   timeout: 20000, // Timeout
-  // withCredentials: true, // Check cross-site Access-Control
+  withCredentials: true, // Check cross-site Access-Control
   headers: {
     // Sign: "admin.hshton.com",
     // Imei: ""
@@ -187,7 +187,7 @@ _axios.interceptors.response.use(
   },
   function(error) {
     // Do something with response error
-    return Promise.reject(error);
+    return Promise.reject(error.response.data);
   }
 );
 

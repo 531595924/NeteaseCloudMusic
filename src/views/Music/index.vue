@@ -1,34 +1,71 @@
 <template>
   <el-container>
     <el-container>
-      <el-aside width="200px">
-        <template
-          v-for="i in asideList"
-        >
+      <el-aside
+        width="220px"
+        v-loading="asideLoading"
+      >
+        <template v-for="i in asideList">
           <h3 :key="i.title">
             {{ i.title }}
           </h3>
           <div
+            class="aside_item"
             v-for="h in i.children"
             :key="h.title"
           >
             <i
-              class="iconfont"
+              class="iconfont asideIcon"
               :class="h.icon"
             />
             {{ h.title }}
           </div>
         </template>
+        <template v-if="userInfo.code && userInfo.code == 200">
+          <h3>创建的歌单</h3>
+          <div
+            class="aside_item"
+            v-for="i in myMusicList"
+            :key="i.id"
+            @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
+          >
+            <i class="asideIcon iconfont songsheet" />
+            {{ i.name }}
+          </div>
+          <h3>收藏的歌单</h3>
+          <div
+            class="aside_item"
+            v-for="i in collectionList"
+            :key="i.id"
+            @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
+          >
+            <i class="asideIcon iconfont songsheet" />
+            {{ i.name }}
+          </div>
+        </template>
       </el-aside>
-      <el-main>Main</el-main>
+      <el-main>
+        <transition 
+          name="el-fade-in-linear" 
+          mode="out-in"
+        >
+          <router-view />
+        </transition>
+      </el-main>
     </el-container>
-    <el-footer>footer</el-footer>
+    <el-footer>
+      <musicPlayer />
+    </el-footer>
   </el-container>
 </template>
 
 <script>
+import musicPlayer from "../../components/musicPlayer";
 export default {
   name: "Music",
+  components: {
+    musicPlayer
+  },
   data() {
     return {
       asideList: [
@@ -56,7 +93,8 @@ export default {
               link: ""
             }
           ]
-        }, {
+        },
+        {
           title: "我的音乐",
           children: [
             {
@@ -71,52 +109,48 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      asideLoading: false,
+      musicList: []
     };
   },
-  mounted() {},
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo;
+    },
+    myMusicList() {
+      return this.musicList.filter(i => !i.subscribed);
+    },
+    collectionList() {
+      return this.musicList.filter(i => i.subscribed);
+    }
+  },
+  watch: {
+    userInfo(data) {
+      if (data.code == 200) {
+        this.getMusicList();
+      }
+    }
+  },
   methods: {
-    search() {
+    getMusicList() {
+      this.asideLoading = true;
       axios
-        .get("search", {
+        .get("/user/playlist", {
           params: {
-            keywords: this.searchInput
+            uid: this.userInfo.profile.userId
           }
         })
         .then(res => {
-          if (res.code == 200) {
-            this.searchList = res.result.songs;
-          }
+          this.asideLoading = false;
+          this.musicList = res.playlist;
         })
         .catch(err => {
-          console.log(err);
-        });
-    },
-    duration(time) {
-      var m = parseInt(time / 1000 / 60);
-      var s = parseInt((time / 1000) % 60);
-      m = m > 10 ? m : "0" + m;
-      s = s > 10 ? s : "0" + s;
-      return `${m}:${s}`;
-    },
-    playMusic(row) {
-      axios
-        .get("song/url", {
-          params: {
-            id: row.id,
-            br: "999000"
-          }
-        })
-        .then(res => {
-          if (res.code == 200) {
-            this.url = res.data[0].url;
-            setTimeout(() => {
-              this.$refs.video.play();
-            }, 50);
-          }
-        })
-        .catch(err => {
-          console.log(err);
+          this.asideLoading = false;
+          this.$message({
+            message: err.msg,
+            type: "error"
+          });
         });
     }
   }
@@ -124,8 +158,55 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 .el-aside {
   text-align: left;
+  background-color: #fafafa;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+
+.el-main {
+  padding: 0;
+  max-height: calc(100vh - 120px);
+}
+
+.el-footer {
+  padding: 0;
+  background-color: #fafafa;
+  border-top: 1px solid #ddd;
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: 100;
+  color: #aaa;
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+.aside_item {
+  font-size: 12px;
+  padding-left: 15px;
+  line-height: 36px;
+  cursor: pointer;
+  color: #777;
+  overflow: hidden; /*超出部分隐藏*/
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
+  white-space: nowrap; /*规定段落中的文本不进行换行 */
+}
+
+.aside_item:hover {
+  color: #333;
+}
+
+.active {
+  padding-left: 12px;
+  background-color: #e6e7ea;
+  border-left: 3px solid $colorRed;
+}
+
+.asideIcon {
+  font-size: 16px;
 }
 </style>

@@ -7,21 +7,28 @@
       >
         网易云音乐
       </h1>
-      <div class="backFront">
-        <i class="header_btn iconfont left" />
-        <i class="header_btn iconfont right" />
+      <div class="header_menu flex flex-center">
+        <div class="header_left flex flex-center">
+          <div class="backFront">
+            <i class="header_btn iconfont left" />
+            <i class="header_btn iconfont right" />
+          </div>
+          <el-input
+            class="searchInput"
+            placeholder="搜索音乐，视频，歌词，电台"
+            v-model="searchInput"
+            size="mini"
+          >
+            <i
+              slot="suffix"
+              class="iconfont search"
+            />
+          </el-input>
+        </div>
+        <div class="header_right flex flex-center">
+          <personalCenter />
+        </div>
       </div>
-      <el-input
-        class="searchInput"
-        placeholder="搜索音乐，视频，歌词，电台"
-        v-model="searchInput"
-        size="mini"
-      >
-        <i
-          slot="suffix"
-          class="iconfont search"
-        />
-      </el-input>
     </el-header>
     <el-main>
       <transition 
@@ -35,8 +42,12 @@
 </template> 
 
 <script>
+import personalCenter from '../components/personalCenter'
 export default {
   name: 'Home',
+  components: {
+    personalCenter
+  },
   data(){
     return {
       searchInput: ""
@@ -61,12 +72,25 @@ export default {
           console.log(err)
         })
     },
-    duration(time){
-      var m = parseInt(time / 1000 / 60);
-      var s = parseInt(time / 1000 % 60);
-      m = m > 10 ? m : "0" + m;
-      s = s > 10 ? s : "0" + s;
-      return `${m}:${s}`
+    playMusic(row){
+      axios
+        .get("song/url", {
+          params: {
+            id: row.id,
+            br: "999000"
+          }
+        })
+        .then(res => {
+          if(res.code == 200){
+            this.url = res.data[0].url;
+            setTimeout(() => {
+              this.$refs.video.play();
+            }, 50);
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
     }
   },
 }
@@ -102,10 +126,10 @@ export default {
 }
 
 .header_btn {
-  font-size: 12px;
+  font-size: 10px;
   width: 30px;
-  height: 30px;
-  line-height: 30px;
+  height: 24px;
+  line-height: 24px;
   border: 1px solid #a82828;
   cursor: pointer;
 }
@@ -120,5 +144,10 @@ export default {
 
 .search {
   margin-top: 3px;
+}
+
+.header_menu {
+  flex: 1;
+  justify-content: space-between;
 }
 </style>

@@ -15,11 +15,18 @@ export default new Router({
           path: 'Music',
           name: '音乐',
           component: () => import('./views/Music'),
+          children: [
+            {
+              path: 'MusicListPage/:musicListId',
+              name: '歌单页',
+              component: () => import('./views/Music/MusicListPage')
+            }
+          ]
         },
         {
           path: 'Video',
           name: '视频',
-          component: () => import('./views/Video'),
+          component: () => import('./views/Video')
         }
       ]
     }

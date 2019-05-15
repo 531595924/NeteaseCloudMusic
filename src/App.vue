@@ -57,12 +57,12 @@ ul li {
 
 input:-webkit-autofill {
   box-shadow: 0 0 0 1000px white inset;
-  -webkit-text-fill-color: #333;
 }
 
 
 html,body {
   height: 100%;
+  min-width: 900px;
 }
 
 #app {
@@ -70,8 +70,19 @@ html,body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #333;
   height: 100%;
 }
 
+.flex {
+  display: flex;
+}
+
+.flex-center {
+  align-items: center;
+}
+
+.column {
+  flex-direction: column;
+}
 </style>

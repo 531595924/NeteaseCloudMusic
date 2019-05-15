@@ -1,29 +1,10 @@
-# CloudMusic
+# 网易云音乐demo
 
-## Project setup
-```
-npm install
-```
+### 使用网易云音乐 NodeJS 版 API[https://github.com/Binaryify/NeteaseCloudMusicApi]
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+---
 
-### Compiles and minifies for production
-```
-npm run build
-```
+###	对网易云客户端复制
 
-### Run your tests
-```
-npm run test
-```
+---
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
