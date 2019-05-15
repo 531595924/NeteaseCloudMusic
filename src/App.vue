@@ -1,36 +1,77 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <div>
-      <p>
-        If Element is successfully added to this project, you'll see an
-        <code v-text="'<el-button>'"></code>
-        below
-      </p>
-      <el-button>el-button</el-button>
-    </div>
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <transition 
+      name="el-fade-in-linear" 
+      mode="out-in"
+    >
+      <router-view />
+    </transition>
   </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<style lang="scss">
 
-export default {
-  name: 'app',
-  components: {
-    HelloWorld
-  }
+* {
+  margin: 0;
+  padding: 0;
 }
-</script>
 
-<style>
+a {
+  text-decoration: none;
+}
+
+/*阿里iconfont*/
+.iconfont {
+  width: 24px;
+  text-align: center;
+  font-size: 18px;
+  display: inline-block;
+}
+
+/*滚动条样式*/
+::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 5px;
+  /*高宽分别对应横竖滚动条的尺寸*/
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 5px;
+  background: rgba(138, 138, 138, 0.6);
+  transition: 0.3s background;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(64, 158, 255, 0.8);
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0);
+}
+
+ul li {
+  list-style-type: none;
+}
+
+input:-webkit-autofill {
+  box-shadow: 0 0 0 1000px white inset;
+  -webkit-text-fill-color: #333;
+}
+
+
+html,body {
+  height: 100%;
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  height: 100%;
 }
+
 </style>
