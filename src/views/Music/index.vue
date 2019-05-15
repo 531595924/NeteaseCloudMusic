@@ -75,6 +75,51 @@ export default {
     };
   },
   mounted() {},
+  methods: {
+    search() {
+      axios
+        .get("search", {
+          params: {
+            keywords: this.searchInput
+          }
+        })
+        .then(res => {
+          if (res.code == 200) {
+            this.searchList = res.result.songs;
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    },
+    duration(time) {
+      var m = parseInt(time / 1000 / 60);
+      var s = parseInt((time / 1000) % 60);
+      m = m > 10 ? m : "0" + m;
+      s = s > 10 ? s : "0" + s;
+      return `${m}:${s}`;
+    },
+    playMusic(row) {
+      axios
+        .get("song/url", {
+          params: {
+            id: row.id,
+            br: "999000"
+          }
+        })
+        .then(res => {
+          if (res.code == 200) {
+            this.url = res.data[0].url;
+            setTimeout(() => {
+              this.$refs.video.play();
+            }, 50);
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
+  }
 };
 </script>
 

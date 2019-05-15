@@ -45,6 +45,22 @@ export default {
   mounted() {
   },
   methods: {
+    search(){
+      axios
+        .get("search", {
+          params: {
+            keywords: this.searchInput
+          }
+        })
+        .then(res => {
+          if(res.code == 200) {
+            this.searchList = res.result.songs
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
     duration(time){
       var m = parseInt(time / 1000 / 60);
       var s = parseInt(time / 1000 % 60);
