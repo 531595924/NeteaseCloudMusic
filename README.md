@@ -1,6 +1,6 @@
-# 网易云音乐demo
+# vue框架 网易云音乐demo
 
-### 使用网易云音乐 NodeJS 版 API[https://github.com/Binaryify/NeteaseCloudMusicApi]
+### 后端接口 网易云音乐 NodeJS 版 API[https://github.com/Binaryify/NeteaseCloudMusicApi]
 
 ---
 
