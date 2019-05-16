@@ -2,51 +2,81 @@
   <el-container>
     <el-container>
       <el-aside
+        class="flex column"
         width="220px"
         v-loading="asideLoading"
       >
-        <template v-for="i in asideList">
-          <h3 :key="i.title">
-            {{ i.title }}
-          </h3>
+        <div class="aside_top">
+          <template v-for="i in asideList">
+            <h3 :key="i.title">
+              {{ i.title }}
+            </h3>
+            <div
+              class="aside_item"
+              v-for="h in i.children"
+              :key="h.title"
+              @click="$router.push({name: h.title})"
+            >
+              <i
+                class="iconfont asideIcon"
+                :class="h.icon"
+              />
+              {{ h.title }}
+            </div>
+          </template>
+          <template v-if="userInfo.code && userInfo.code == 200">
+            <h3>创建的歌单</h3>
+            <div
+              class="aside_item"
+              v-for="i in myMusicList"
+              :key="i.id"
+              :class="$route.params.musicListId == i.id ? 'active' : ''"
+              @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
+            >
+              <i class="asideIcon iconfont icon-songsheet" />
+              {{ i.name }}
+            </div>
+            <h3>收藏的歌单</h3>
+            <div
+              class="aside_item"
+              v-for="i in collectionList"
+              :key="i.id"
+              :class="$route.params.musicListId == i.id ? 'active' : ''"
+              @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
+            >
+              <i class="asideIcon iconfont icon-songsheet" />
+              {{ i.name }}
+            </div>
+          </template>
+        </div>
+        <transition name="el-zoom-in-bottom">
           <div
-            class="aside_item"
-            v-for="h in i.children"
-            :key="h.title"
+            class="nowMusicInfo flex"
+            v-if="nowPlayMusic.id"
           >
-            <i
-              class="iconfont asideIcon"
-              :class="h.icon"
-            />
-            {{ h.title }}
+            <div class="nowMusicInfo_img">
+              <img :src="nowPlayMusic.al.picUrl">
+            </div>
+            <div class="nowMusicInfo_text">
+              <p class="nowMusicInfo_title">
+                {{ nowPlayMusic.name }}
+              </p>
+              <p class="nowMusicInfo_user">
+                <a
+                  v-for="(i, index) in nowPlayMusic.ar"
+                  :key="i.id"
+                >
+                  {{ i.name }}
+                  <span v-if="(index + 1) != nowPlayMusic.ar.length">/</span>
+                </a>
+              </p>
+            </div>
           </div>
-        </template>
-        <template v-if="userInfo.code && userInfo.code == 200">
-          <h3>创建的歌单</h3>
-          <div
-            class="aside_item"
-            v-for="i in myMusicList"
-            :key="i.id"
-            @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
-          >
-            <i class="asideIcon iconfont songsheet" />
-            {{ i.name }}
-          </div>
-          <h3>收藏的歌单</h3>
-          <div
-            class="aside_item"
-            v-for="i in collectionList"
-            :key="i.id"
-            @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
-          >
-            <i class="asideIcon iconfont songsheet" />
-            {{ i.name }}
-          </div>
-        </template>
+        </transition>
       </el-aside>
       <el-main>
-        <transition 
-          name="el-fade-in-linear" 
+        <transition
+          name="el-fade-in-linear"
           mode="out-in"
         >
           <router-view />
@@ -73,24 +103,20 @@ export default {
           title: "推荐",
           children: [
             {
-              icon: "music",
-              title: "发现音乐",
-              link: ""
+              icon: "icon-music",
+              title: "发现音乐"
             },
             {
-              icon: "radio",
+              icon: "icon-radio",
               title: "私人FM",
-              link: ""
             },
             {
-              icon: "video",
-              title: "视频",
-              link: ""
+              icon: "icon-video",
+              title: "视频"
             },
             {
-              icon: "pengyou",
-              title: "朋友",
-              link: ""
+              icon: "icon-pengyou",
+              title: "朋友"
             }
           ]
         },
@@ -98,14 +124,12 @@ export default {
           title: "我的音乐",
           children: [
             {
-              icon: "yun",
-              title: "音乐云盘",
-              link: ""
+              icon: "icon-yun",
+              title: "音乐云盘"
             },
             {
-              icon: "shoucang",
-              title: "我的收藏",
-              link: ""
+              icon: "icon-shoucang",
+              title: "我的收藏"
             }
           ]
         }
@@ -115,6 +139,9 @@ export default {
     };
   },
   computed: {
+    nowPlayMusic() {
+      return this.$store.state.nowPlayMusic;
+    },
     userInfo() {
       return this.$store.state.userInfo;
     },
@@ -166,6 +193,11 @@ export default {
   max-height: calc(100vh - 120px);
 }
 
+.aside_top {
+  flex: 1;
+  overflow: auto;
+}
+
 .el-main {
   padding: 0;
   max-height: calc(100vh - 120px);
@@ -208,5 +240,44 @@ h3 {
 
 .asideIcon {
   font-size: 16px;
+}
+
+.nowMusicInfo {
+  border-top: 1px solid #ddd;
+  padding: 5px;
+  max-width: 220px;
+}
+
+.nowMusicInfo_img {
+  min-height: 50px;
+  min-width: 50px;
+  max-height: 50px;
+  max-width: 50px;
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.nowMusicInfo_text {
+  margin-left: 10px;
+}
+
+.nowMusicInfo_title {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 5px 0;
+  max-width: 140px;
+}
+
+.nowMusicInfo_user {
+  font-size: 12px;
+  color: #999;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
 }
 </style>

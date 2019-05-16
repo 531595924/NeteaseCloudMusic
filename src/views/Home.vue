@@ -10,8 +10,8 @@
       <div class="header_menu flex flex-center">
         <div class="header_left flex flex-center">
           <div class="backFront">
-            <i class="header_btn iconfont left" />
-            <i class="header_btn iconfont right" />
+            <i class="header_btn iconfont icon-left" />
+            <i class="header_btn iconfont icon-right" />
           </div>
           <el-input
             class="searchInput"
@@ -21,7 +21,7 @@
           >
             <i
               slot="suffix"
-              class="iconfont search"
+              class="iconfont icon-search"
             />
           </el-input>
         </div>

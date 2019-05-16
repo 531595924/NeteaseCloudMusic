@@ -35,8 +35,8 @@ Vue.prototype.$copyText = function (text) {
 Vue.prototype.$duration = function (time) {
   var m = parseInt(time / 1000 / 60);
   var s = parseInt((time / 1000) % 60);
-  m = m > 10 ? m : "0" + m;
-  s = s > 10 ? s : "0" + s;
+  m = m >= 10 ? m : "0" + m;
+  s = s >= 10 ? s : "0" + s;
   return `${m}:${s}`;
 }
 

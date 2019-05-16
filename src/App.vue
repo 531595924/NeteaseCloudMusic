@@ -40,11 +40,10 @@ a {
   /*滚动条里面小方块*/
   border-radius: 5px;
   background: rgba(138, 138, 138, 0.6);
-  transition: 0.3s background;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(64, 158, 255, 0.8);
+  background: rgba(255, 129, 129, 0.8);
 }
 
 ::-webkit-scrollbar-track {

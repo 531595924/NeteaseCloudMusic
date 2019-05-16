@@ -14,7 +14,7 @@
         <div class="title_box flex flex-center">
           <div class="title_box_left flex flex-center">
             <span class="musicList_icon">歌单</span>
-            <h5 class="list_ntitle">
+            <h5 class="list_title">
               {{ data.playlist.name }}
             </h5>
           </div>
@@ -50,25 +50,41 @@
       style="width: 100%"
       show-overflow-tooltip
       stripe
+      size="small"
+      @row-dblclick="playMusic"
     >
       <el-table-column
+        align="center"
+        width="30"
+      >
+        <template slot-scope="scope">
+          <i
+            class="iconfont icon-volume"
+            v-if="scope.row.id == $store.state.nowPlayMusic.id"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
         type="index"
-        center
+        align="center"
         width="50"
       />
       <el-table-column
         label="操作"
-        width="100"
+        align="center"
+        width="80"
       />
       <el-table-column
         prop="name"
         label="音乐标题"
         min-width="100"
+        show-overflow-tooltip
         sortable
       >
         <template slot-scope="scope">
           {{ scope.row.name }}
           <span
+            class="musicAlias"
             v-for="i in scope.row.alia"
             :key="i"
           >{{ i }}</span>
@@ -77,6 +93,7 @@
       <el-table-column
         label="歌手"
         min-width="100"
+        show-overflow-tooltip
       >
         <template slot-scope="scope">
           <a
@@ -91,6 +108,7 @@
       <el-table-column
         label="专辑"
         min-width="100"
+        show-overflow-tooltip
       >
         <template slot-scope="scope">
           <a>{{ scope.row.al.name }}</a>
@@ -142,6 +160,10 @@ export default {
           this.loading = false;
           console.log(err)
         })
+    },
+    playMusic(row){
+      this.$store.commit("switchMusic", row);
+      this.$store.commit("switchMusicList", this.data.playlist.tracks);
     }
   }
 };
@@ -189,10 +211,14 @@ export default {
   justify-content: space-between;
 }
 
-.list_ntitle {
+.list_title {
   margin: 0 10px;
   font-weight: 500;
   font-size: 22px;
+}
+
+.musicAlias {
+  color: #bfbfbf;
 }
 
 .number_box {
@@ -224,5 +250,13 @@ export default {
 
 .user_name {
   margin: 0 10px;
+}
+
+.icon-volume {
+  color: $colorRed;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  text-align: center;
 }
 </style>
