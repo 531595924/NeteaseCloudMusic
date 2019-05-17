@@ -1,10 +1,15 @@
 <template>
   <div class="musicPlayer flex flex-center">
     <div class="playcontrol flex flex-center">
-      <div class="playBtn">
+      <div
+        class="playBtn"
+        @click="previousMusic"
+      >
         <i class="playBtnIcon iconfont icon-previous" />
       </div>
       <div
+        v-loading="playLoading && storeNowPlay.id"
+        element-loading-spinner="el-icon-loading"
         class="playBtn"
         @click="playState ? suspendMusic() : startPlay()"
       >
@@ -13,7 +18,10 @@
           :class="playState ? 'icon-suspend' : 'icon-play'"
         />
       </div>
-      <div class="playBtn">
+      <div
+        class="playBtn"
+        @click="nextMusic"
+      >
         <i class="playBtnIcon iconfont icon-next" />
       </div>
     </div>
@@ -40,13 +48,13 @@
         trigger="click"
       >
         <div class="flex flex-center musciListTtooltipTop">
-          <p>总{{ $store.state.nowMusicList.length }}首</p>
+          <p>总{{ storeNowPlayList.length }}首</p>
           <p class="el-icon-delete">
             清空
           </p>
         </div>
         <el-table
-          :data="$store.state.nowMusicList"
+          :data="storeNowPlayList"
           :show-header="false"
           max-height="400px"
           size="mini"
@@ -58,8 +66,8 @@
           >
             <template slot-scope="scope">
               <i
-                class="nowMusicList_play iconfont icon-play"
                 v-if="scope.row.id == $store.state.nowPlayMusic.id"
+                class="nowMusicList_play iconfont icon-play"
               />
             </template>
           </el-table-column>
@@ -74,9 +82,9 @@
             <template slot-scope="scope">
               {{ scope.row.name }}
               <span
-                class="musicAlias"
                 v-for="i in scope.row.alia"
                 :key="i"
+                class="musicAlias"
               >{{ i }}</span>
             </template>
           </el-table-column>
@@ -110,14 +118,18 @@
           class="currentPlayList flex flex-center"
         >
           <i class="iconfont icon-songsheet" />
-          {{ $store.state.nowMusicList.length }}
+          {{ storeNowPlayList.length }}
         </div>
       </el-popover>
     </div>
     <video
-      class="video"
       ref="video"
+      class="video"
       :src="playUrl"
+      @ended="playState = false; nextMusic()"
+      @loadstart="playLoading = true"
+      @canplay="playLoading = false; startPlay()"
+      @canplaythrough="playLoading = false"
     />
   </div>
 </template>
@@ -131,12 +143,16 @@ export default {
       playUrl: "",
       playState: false,
       lineDrag: false,
-      playedTime: ""
+      playedTime: "",
+      playLoading: false
     };
   },
   computed: {
     storeNowPlay() {
       return this.$store.state.nowPlayMusic;
+    },
+    storeNowPlayList() {
+      return this.$store.state.nowMusicList;
     },
     playProgress: {
       get() {
@@ -159,18 +175,22 @@ export default {
     const nowPlayMusic = localStorage.nowPlayMusic
       ? JSON.parse(localStorage.nowPlayMusic)
       : false;
+    const nowPlayMusicIndex = localStorage.nowPlayMusicIndex
+      ? JSON.parse(localStorage.nowPlayMusicIndex)
+      : false;
     if (nowPlayMusic && nowPlayMusic.id) {
-      this.$store.commit("switchMusic", nowPlayMusic);
+      this.$store.commit("switchMusic", {music: nowPlayMusic, index: nowPlayMusicIndex});
     }
     const nowMusicList = localStorage.nowMusicList
       ? JSON.parse(localStorage.nowMusicList)
       : false;
-    if (nowMusicList.length != 0) {
+    if (nowMusicList && nowMusicList.length != 0) {
       this.$store.commit("switchMusicList", nowMusicList);
     }
   },
   methods: {
     playMusic(id) {
+      this.playLoading = true;
       axios
         .get("song/url", {
           params: {
@@ -180,47 +200,91 @@ export default {
         })
         .then(res => {
           if (res.code == 200) {
-            this.playUrl = res.data[0].url;
+            if(res.data[0].url){
+              this.playUrl = res.data[0].url;
+            } else {
+              this.$message({
+                message: "歌曲资源失效",
+                type: "error"
+              });
+              this.nextMusic();
+            }
             setTimeout(() => {
               this.startPlay();
-            }, 100);
+            }, 200);
+          } else {
+            this.$message({
+              message: "获取歌曲时发生错误" + res.msg,
+              type: "error"
+            });
           }
         })
         .catch(err => {
-          console.log(err);
+          this.$message({
+            message: err.msg,
+            type: "error"
+          });
         });
     },
     tooltipPlay(row) {
-      this.$store.commit("switchMusic", row);
+      this.$store.commit("switchMusic", {music: row, index: this.storeNowPlayList.indexOf(row)});
     },
     startPlay() {
-      this.$refs.video.play();
-      this.playState = true;
-      this.getPlayedTime();
+      if( !this.playLoading ) {
+        this.playState = true;
+        this.$refs.video.play();
+        this.getPlayedTime();
+      }
     },
     getPlayedTime() {
       this.lineDrag = false;
       var _this = this;
+      var nowId = this.storeNowPlay.id;
+
       (function fn() {
+        var fnID = _this.storeNowPlay.id;
         _this.playedTime = _this.$refs.video.currentTime * 1000;
         setTimeout(() => {
-          if (_this.playState && !_this.lineDrag) {
+          if (_this.playState && !_this.lineDrag && (nowId == fnID)) {
             fn();
           }
         }, 1000);
       })();
     },
     suspendMusic() {
-      this.$refs.video.pause();
-      this.playState = false;
+      if( !this.playLoading ) {
+        this.$refs.video.pause();
+        this.playState = false;
+      }
     },
     formatTooltip(val) {
       return this.$duration((val / 100) * this.storeNowPlay.dt);
     },
     setProgress(val) {
+      this.playLoading = true;
       this.$refs.video.currentTime =
         ((val / 100) * this.storeNowPlay.dt) / 1000;
       this.getPlayedTime();
+    },
+    playError() {
+      this.$message({
+        message: "播放错误，请重试",
+        type: "error"
+      });
+      this.playState = false;
+      this.playLoading = false;
+    },
+    nextMusic() {
+      let index = this.$store.state.nowPlayMusicIndex;
+      index = (index + 1) >= this.storeNowPlayList.length ? 0 : index + 1;
+      const nextMusic = this.storeNowPlayList[index];
+      this.$store.commit("switchMusic", {music: nextMusic, index: index});
+    },
+    previousMusic() {
+      let index = this.$store.state.nowPlayMusicIndex;
+      index = (index - 1) < 0 ? this.storeNowPlayList.length - 1 : index - 1;
+      const nextMusic = this.storeNowPlayList[index];
+      this.$store.commit("switchMusic", {music: nextMusic, index: index});
     }
   }
 };
@@ -251,6 +315,7 @@ export default {
   line-height: 32px;
   transition: 0.3s all;
   cursor: pointer;
+  overflow: hidden;
 }
 
 .playBtn:nth-child(2) {
@@ -329,5 +394,17 @@ export default {
 .nowMusicList_play {
   font-size: 12px;
   color: $colorRedHover;
+}
+
+</style>
+
+<style scoped>
+.playBtn >>> .el-icon-loading {
+  font-size: 20px;
+  transform: translateY(2px)
+}
+
+.playBtn >>> .el-loading-spinner {
+  margin-top: -16px;
 }
 </style>

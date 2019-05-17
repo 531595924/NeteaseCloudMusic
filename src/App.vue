@@ -61,7 +61,8 @@ input:-webkit-autofill {
 
 html,body {
   height: 100%;
-  min-width: 900px;
+  min-width: 1000px;
+  background-color: #fafafa;
 }
 
 #app {

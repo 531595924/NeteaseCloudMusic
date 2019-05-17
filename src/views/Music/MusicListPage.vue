@@ -1,11 +1,11 @@
 <template>
   <div
-    class="musicListPage flex column"
     v-loading="loading"
+    class="musicListPage flex column"
   >
     <div
-      class="page_top flex"
       v-if="data.playlist"
+      class="page_top flex"
     >
       <div class="page_top_left">
         <img :src="data.playlist.coverImgUrl">
@@ -34,6 +34,7 @@
           <el-button
             type="primary"
             size="mini"
+            @click="playMusic(data.playlist.tracks[0])"
           >
             播放全部
           </el-button>
@@ -59,8 +60,8 @@
       >
         <template slot-scope="scope">
           <i
-            class="iconfont icon-volume"
             v-if="scope.row.id == $store.state.nowPlayMusic.id"
+            class="iconfont icon-volume"
           />
         </template>
       </el-table-column>
@@ -84,9 +85,9 @@
         <template slot-scope="scope">
           {{ scope.row.name }}
           <span
-            class="musicAlias"
             v-for="i in scope.row.alia"
             :key="i"
+            class="musicAlias"
           >{{ i }}</span>
         </template>
       </el-table-column>
@@ -154,15 +155,26 @@ export default {
         })
         .then(res => {
           this.loading = false;
-          this.data = res;
+          if(res.code == 200) {
+            this.data = res;
+          } else {
+            this.$message({
+              message: "获取歌曲时发生错误" + res.msg,
+              type: "error"
+            });
+          }
         })
         .catch(err => {
           this.loading = false;
-          console.log(err)
+          this.$message({
+            message: err.msg,
+            type: "error"
+          });
         })
     },
     playMusic(row){
-      this.$store.commit("switchMusic", row);
+      var index = this.data.playlist.tracks.indexOf(row);
+      this.$store.commit("switchMusic", {music: row, index: index});
       this.$store.commit("switchMusicList", this.data.playlist.tracks);
     }
   }
@@ -173,7 +185,7 @@ export default {
 
 .musicListPage {
   flex: 1;
-  min-height: 500px;
+  min-height: calc(100vh - 120px);
 }
 
 .page_top {

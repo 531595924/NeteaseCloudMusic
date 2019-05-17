@@ -3,20 +3,26 @@
     <el-header>
       <h1
         class="logo"
-        href="#"
+        @click="$router.push({name: '发现音乐'})"
       >
         网易云音乐
       </h1>
       <div class="header_menu flex flex-center">
         <div class="header_left flex flex-center">
           <div class="backFront">
-            <i class="header_btn iconfont icon-left" />
-            <i class="header_btn iconfont icon-right" />
+            <i
+              class="header_btn iconfont icon-left"
+              @click="$router.go(-1)"
+            />
+            <i
+              class="header_btn iconfont icon-right"
+              @click="$router.go(1)" 
+            />
           </div>
           <el-input
+            v-model="searchInput"
             class="searchInput"
             placeholder="搜索音乐，视频，歌词，电台"
-            v-model="searchInput"
             size="mini"
           >
             <i
@@ -119,6 +125,7 @@ export default {
   text-align: left;
   font-weight: 500;
   width: 200px;
+  cursor: pointer;
 }
 
 .backFront {

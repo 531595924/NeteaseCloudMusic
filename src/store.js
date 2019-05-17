@@ -8,6 +8,7 @@ export default new Vuex.Store({
   state: {
     userInfo: {},
     nowPlayMusic: {},
+    nowPlayMusicIndex: 0,
     nowMusicList: [],
     playState: false
   },
@@ -16,9 +17,11 @@ export default new Vuex.Store({
       state.userInfo = userInfo;
       localStorage.userInfo = JSON.stringify(userInfo);
     },
-    switchMusic(state, music) {
-      state.nowPlayMusic = music;
-      localStorage.nowPlayMusic = JSON.stringify(music);
+    switchMusic(state, data) {
+      state.nowPlayMusic = data.music;
+      localStorage.nowPlayMusic = JSON.stringify(data.music);
+      state.nowPlayMusicIndex = data.index;
+      localStorage.nowPlayMusicIndex = JSON.stringify(data.index);
     },
     switchMusicList(state, musicList) {
       state.nowMusicList = musicList;

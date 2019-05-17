@@ -5,14 +5,14 @@ module.exports = {
   runtimeCompiler: undefined,
   productionSourceMap: undefined,
   parallel: undefined,
+
   css: {
     loaderOptions: {
-      // scss全局变量
       sass: {
-        data: `
-          @import "@/assets/styles/_variable.scss";
-        `
+        data: '\n          @import "@/assets/styles/_variable.scss";\n        '
       }
     }
-  }
+  },
+
+  lintOnSave: undefined
 }

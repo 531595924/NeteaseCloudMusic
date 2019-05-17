@@ -2,9 +2,9 @@
   <el-container>
     <el-container>
       <el-aside
+        v-loading="asideLoading"
         class="flex column"
         width="220px"
-        v-loading="asideLoading"
       >
         <div class="aside_top">
           <template v-for="i in asideList">
@@ -12,9 +12,9 @@
               {{ i.title }}
             </h3>
             <div
-              class="aside_item"
               v-for="h in i.children"
               :key="h.title"
+              class="aside_item"
               @click="$router.push({name: h.title})"
             >
               <i
@@ -27,9 +27,9 @@
           <template v-if="userInfo.code && userInfo.code == 200">
             <h3>创建的歌单</h3>
             <div
-              class="aside_item"
               v-for="i in myMusicList"
               :key="i.id"
+              class="aside_item"
               :class="$route.params.musicListId == i.id ? 'active' : ''"
               @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
             >
@@ -38,9 +38,9 @@
             </div>
             <h3>收藏的歌单</h3>
             <div
-              class="aside_item"
               v-for="i in collectionList"
               :key="i.id"
+              class="aside_item"
               :class="$route.params.musicListId == i.id ? 'active' : ''"
               @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
             >
@@ -51,8 +51,8 @@
         </div>
         <transition name="el-zoom-in-bottom">
           <div
-            class="nowMusicInfo flex"
             v-if="nowPlayMusic.id"
+            class="nowMusicInfo flex"
           >
             <div class="nowMusicInfo_img">
               <img :src="nowPlayMusic.al.picUrl">
@@ -187,7 +187,6 @@ export default {
 <style lang="scss" scoped>
 .el-aside {
   text-align: left;
-  background-color: #fafafa;
   border-right: 1px solid #ddd;
   overflow-y: auto;
   max-height: calc(100vh - 120px);
@@ -205,7 +204,6 @@ export default {
 
 .el-footer {
   padding: 0;
-  background-color: #fafafa;
   border-top: 1px solid #ddd;
 }
 
