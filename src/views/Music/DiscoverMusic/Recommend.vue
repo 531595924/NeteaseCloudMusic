@@ -62,6 +62,12 @@
               <div class="musicList_item_num el-icon-headset">
                 {{ parseInt(i.playCount / 10000) }}万
               </div>
+              <div
+                class="musicList_item_play"
+                @click.stop="playSongList(i.id)"
+              >
+                <i class="iconfont icon-play" />
+              </div>
             </div>
             <div class="musicList_item_title">
               {{ i.name }}
@@ -77,8 +83,63 @@
           <h4>最新音乐</h4>
           <p>更多 ></p>
         </div>
+        <div class="newSong">
+          <div
+            v-for="n in 2"
+            :key="n"
+            class="newSong_item_box"
+          >
+            <div
+              v-for="(i, index) in newSong.slice((n - 1) * 5, n * 5)"
+              :key="i.id"
+              class="newSong_item"
+              :class="i.id == $store.state.nowPlayMusic.id ? 'newSong_item_active' : ''"
+              @dblclick="playNewSong((n - 1) * 5 + index)"
+            >
+              <div
+                v-if="i.id == $store.state.nowPlayMusic.id"
+                class="newSong_item_index"
+              >
+                <i class="iconfont icon-volume" />
+              </div>
+              <div
+                v-else
+                class="newSong_item_index"
+              >
+                {{ newSongIndex((n - 1) * 5 + index + 1) }}
+              </div>
+              <div class="newSong_item_info">
+                <div
+                  class="newSong_item_info_img"
+                  :style="{'backgroundImage': `url(${i.song.album.picUrl})`}"
+                >
+                  <div
+                    class="musicList_item_play"
+                    @click="playNewSong((n - 1) * 5 + index)"
+                  >
+                    <i class="iconfont icon-play" />
+                  </div>
+                </div>
+                <div class="newSong_item_info_text_box">
+                  <p class="newSong_item_info_name">
+                    {{ i.name }}
+                  </p>
+                  <p class="newSong_item_info_songUse">
+                    <span
+                      v-for="(o, oindex) in i.song.artists"
+                      :key="o.id"
+                    >
+                      {{ o.name }}
+                      <template v-if="(oindex + 1) < i.song.artists.length"> / </template>
+                    </span>
+                  </p>
+                  <p />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
       <div class="item_box">
         <div class="item_title">
           <h4>独家放送</h4>
@@ -205,6 +266,71 @@ export default {
             type: "error"
           });
         });
+    },
+    newSongIndex(num) {
+      if(num < 10){
+        return '0' + num
+      } else {
+        return num
+      }
+    },
+    playNewSong(index) {
+      if(this.newSong[index].id == this.$store.state.nowPlayMusic.id) {
+        return false
+      }
+      this.newSongLoading = true;
+      axios
+        .get("/song/detail", {
+          params: {
+            ids: this.newSong.map(i => i.id).join(",")
+          }
+        })
+        .then(res => {
+          this.newSongLoading = false;
+          if(res.code == 200){
+            this.$store.commit("switchMusic", {
+              music: res.songs[index],
+              index: index
+            })
+            this.$store.commit("switchMusicList", res.songs)
+          } else {
+            this.$message({
+              message: "获取错误" + res.msg,
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          this.newSongLoading = false;
+          this.$message({
+            message: "获取错误" + err.msg,
+            type: "error"
+          });
+        })
+    },
+    playSongList(id) {
+      axios
+        .get(`/playlist/detail?id=${id}`)
+        .then(res => {
+          if(res.code == 200){
+            this.$store.commit("switchMusic", {
+              music: res.playlist.tracks[0],
+              index: 0
+            })
+            this.$store.commit("switchMusicList", res.playlist.tracks)
+          } else {
+            this.$message({
+              message: "获取错误" + res.msg,
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          this.$message({
+              message: "获取错误" + err.msg,
+              type: "error"
+            });
+        })
     }
   }
 };
@@ -312,6 +438,39 @@ export default {
   transform: translateY(0);
 }
 
+.musicList_item_img .musicList_item_play {
+  right: 10px;
+  bottom: 10px;
+}
+
+.newSong_item .musicList_item_play {
+  right: 4px;
+  bottom: 4px;
+}
+
+.musicList_item_play {
+  width: 30px;
+  height: 30px;
+  border-radius: 100px;
+  border: 1px white solid;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  transform: translateY(200%);
+  transition: all .3s;
+  .icon-play {
+    color: white;
+    font-size: 12px;
+  }
+}
+
+.musicList_item_img:hover .musicList_item_play,
+.newSong_item:hover .musicList_item_play {
+  transform: translateY(0);
+}
+
 .musicList_item_title {
   text-align: left;
   margin-top: 5px;
@@ -349,4 +508,69 @@ export default {
 .musicList_item_img:hover .musicList_item_num {
   transform: translateY(-100%);
 }
+
+.newSong {
+  display: flex;
+  border: #ddd solid 1px;
+}
+
+.newSong_item_box {
+  width: 50%;
+  text-align: left;
+  border-right: #ddd solid 1px;
+}
+
+.newSong_item_box:nth-last-child(1) {
+  border: none;
+}
+
+.newSong_item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.newSong_item:nth-child(2n) {
+  background-color: #f3f3f3;
+}
+
+.newSong_item_index {
+  color: #aaa;
+  margin-right: 10px;
+  font-size: 12px;
+}
+
+
+.newSong_item_info {
+  display: flex;
+  align-items: center;
+}
+
+.newSong_item_info_img {
+  width: 40px;
+  height: 40px;
+  border: #ddd solid 1px;
+  margin-right: 10px;
+  position: relative;
+  overflow: hidden;
+  background: no-repeat center / 100% 100%;
+}
+
+.newSong_item_info_name {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.newSong_item_info_songUse {
+  font-size: 12px;
+  color: #999;
+}
+
+.icon-volume {
+  color: $colorRed;
+  font-size: 14px;
+  width: 14px;
+}
+
 </style>
