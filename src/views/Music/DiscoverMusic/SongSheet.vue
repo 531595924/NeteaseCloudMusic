@@ -1,5 +1,5 @@
 <template>
-  <div class="SongSheet">
+  <div class="SongSheet flex column">
     <div class="screen_box">
       <el-popover
         placement="bottom-start"
@@ -56,6 +56,55 @@
         >{{ i.name }}</span>
       </div>
     </div>
+    <div
+      v-infinite-scroll="getPlayList"
+      class="playlist"
+      :infinite-scroll-delay="200"
+    >
+      <div class="musicList_box flex">
+        <div
+          v-for="i in playList"
+          :key="i.id"
+          class="musicList_item"
+          @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
+        >
+          <div class="musicList_item_top">
+            <div 
+              class="musicList_item_img" 
+              :style="{ backgroundImage: `url(${i.coverImgUrl})` }"
+            >
+              <div class="musicList_item_num el-icon-headset">
+                {{ i.playCount >= 100000 ? parseInt(i.playCount / 10000) + "万" : i.playCount }}
+              </div>
+              <div class="musicList_item_user el-icon-user">
+                {{ i.creator.nickname }}
+              </div>
+              <div
+                class="musicList_item_play"
+                @click.stop="playSongList(i.id)"
+              >
+                <i class="iconfont icon-play" />
+              </div>
+            </div>
+          </div>
+          <div class="musicList_item_title">
+            {{ i.name }}
+          </div>
+        </div>
+      </div>
+      <p
+        v-if="loading"
+        class="loading_text"
+      >
+        <i class="el-icon-loading" />
+        加载中...
+      </p>
+      <el-backtop
+        target=".SongSheet"
+        :right="60"
+        :bottom="80"
+      />
+    </div>
   </div>
 </template>
 
@@ -66,7 +115,10 @@ export default {
     return {
       screenClass: "全部歌单",
       allClass: {},
-      hotClass: []
+      hotClass: [],
+      playList: [],
+      playListOffset: 0,
+      loading: false
     }
   },
   computed: {
@@ -86,6 +138,13 @@ export default {
       return format
     }
   },
+  watch: {
+    screenClass(){
+      this.playListOffset = 0;
+      this.playList = [];
+      this.getPlayList();
+    }
+  },
   mounted() {
     this.getAllClass();
     this.getHotClass();
@@ -100,14 +159,14 @@ export default {
             this.allClass = res;
           } else {
             this.$message({
-              message: "获取歌单分类" + res.msg,
+              message: "获取歌单分类失败，" + res.msg,
               type: "error"
             });
           }
         })
         .catch(err => {
           this.$message({
-            message: "获取歌单分类" + err.msg,
+            message: "获取歌单分类失败，" + err.msg,
             type: "error"
           });
 
@@ -121,24 +180,85 @@ export default {
             this.hotClass = res.tags;
           } else {
             this.$message({
-              message: "获取热门歌单分类" + res.msg,
+              message: "获取热门歌单分类失败，" + res.msg,
               type: "error"
             });
           }
         })
         .catch(err => {
           this.$message({
-            message: "获取热门歌单分类" + err.msg,
+            message: "获取热门歌单分类失败，" + err.msg,
             type: "error"
           });
 
         })
+    },
+    getPlayList() {
+      if(!this.loading) {
+        this.loading = true;
+        axios
+          .get("/top/playlist", {
+            params: {
+              cat: this.screenClass,
+              offset: this.playListOffset,
+              limit: 20
+            }
+          })
+          .then(res => {
+            this.loading = false;
+            if(res.code == 200) {
+              this.playList = this.playList.concat(res.playlists)
+              this.playListOffset += 20;
+            } else {
+              this.$message({
+                message: "获取热门歌单列表失败，" + res.msg,
+                type: "error"
+              });
+            }
+          })
+          .catch(err => {
+            this.loading = false;
+            this.$message({
+              message: "获取热门歌单列表失败，" + err.msg,
+              type: "error"
+            });
+          })
+      }
+    },
+    playSongList(id) {
+      axios
+        .get(`/playlist/detail?id=${id}`)
+        .then(res => {
+          if(res.code == 200){
+            this.$store.commit("switchMusic", {
+              music: res.playlist.tracks[0],
+              index: 0
+            })
+            this.$store.commit("switchMusicList", res.playlist.tracks)
+          } else {
+            this.$message({
+              message: "获取错误" + res.msg,
+              type: "error"
+            });
+          }
+        })
+        .catch(err => {
+          this.$message({
+              message: "获取错误" + err.msg,
+              type: "error"
+            });
+        })
     }
+
   }
 }
 </script>
 
 <style lang="scss" scoped>
+
+.SongSheet {
+  overflow-y: auto;
+}
 
 .screen_box {
   text-align: left;
@@ -215,7 +335,7 @@ export default {
   margin: 10px 0;
   font-size: 12px;
   span {
-    padding: 0 20px;
+    padding: 0 18px;
     color: #666;
     cursor: pointer;
     border-right: 1px solid #ddd;
@@ -230,5 +350,148 @@ export default {
 
 .activeHotClass {
   color: $colorRed !important;
+}
+
+.playlist {
+  padding: 20px;
+}
+
+.loading_text {
+  color: $colorRed;
+  font-size: 15px;
+}
+
+.musicList_box {
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.musicList_item {
+  width: 18%;
+  cursor: pointer;
+  margin-bottom: 35px;
+}
+
+.musicList_item_img {
+  padding-top: calc(100% - 2px);
+  border: #ccc solid 1px;
+  position: relative;
+  background: center no-repeat / 100% 100%;
+  overflow: hidden;
+  background-color: white;
+}
+
+.weekRecommend {
+  font-size: 14px;
+  color: #888;
+}
+
+.dayRecommend {
+  font-size: 6vw;
+  color: $colorRed;
+  font-weight: 500;
+}
+
+.musicList_item_tootip {
+  width: calc(100% - 16px);
+  position: absolute;
+  top: 0;
+  text-align: left;
+  padding: 5px 8px;
+  height: 20%;
+  min-height: 38px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+  transition: all .3s;
+  transform: translateY(-100%);
+
+  p {
+    font-size: 12px;
+    height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 18px;
+  }
+}
+
+.musicList_item_img:hover .musicList_item_tootip {
+  transform: translateY(0);
+}
+
+.musicList_item_img .musicList_item_play {
+  right: 10px;
+  bottom: 10px;
+}
+
+.newSong_item .musicList_item_play {
+  right: 4px;
+  bottom: 4px;
+}
+
+.musicList_item_play {
+  width: 30px;
+  height: 30px;
+  border-radius: 100px;
+  border: 1px white solid;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  transform: translateY(200%);
+  transition: all .3s;
+  .icon-play {
+    color: white;
+    font-size: 12px;
+  }
+}
+
+.musicList_item_img:hover .musicList_item_play,
+.newSong_item:hover .musicList_item_play {
+  transform: translateY(0);
+}
+
+.musicList_item_title {
+  text-align: left;
+  margin-top: 5px;
+  font-size: 14px;
+  letter-spacing: .5px;
+  line-height: 20px;
+  height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.musicList_item_num {
+  position: absolute;
+  padding: 5px;
+  width: 40%;
+  text-align: right;
+  font-size: 12px;
+  color: white;
+  right: 0;
+  top: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,.5));
+}
+
+.musicList_item_user {
+  width: 100%;
+  position: absolute;
+  text-align: left;
+  line-height: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  color: white;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.6));
 }
 </style>

@@ -50,3 +50,27 @@ Vue.prototype.$timeTransformation = function (time) {
   d = d < 10 ? '0' + d : d
   return `${y}-${m}-${d}`
 }
+
+// 时间戳转 年月日 时分秒
+Vue.prototype.$specificdateTransformation = function (time, hours, secondes) {
+  let date = new Date(time)
+  let y = date.getFullYear();
+  let m = date.getMonth() + 1;
+  let d = date.getDate();
+  y = y < 10 ? '0' + y : y;
+  d = d < 10 ? '0' + d : d;
+  let text = `${y}年${m}月${d}日`;
+  if(hours){
+    let h = date.getHours();
+    let min = date.getMinutes();
+    h = h < 10 ? '0' + h : h;
+    min = min < 10 ? '0' + min : min;
+    text += ` ${h}:${min}`
+  }
+  if (secondes) {
+    let s = date.getSeconds();
+    s = s < 10 ? '0' + y : s;
+    text += `:${s}`
+  }
+  return text
+}

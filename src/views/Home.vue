@@ -1,5 +1,5 @@
 <template>
-  <el-container>
+  <el-container v-loading="loading">
     <el-header>
       <h1
         class="logo"
@@ -44,61 +44,92 @@
         <router-view />
       </transition>
     </el-main>
+    <musicPlayer />
   </el-container>
 </template> 
 
 <script>
-import personalCenter from '../components/personalCenter'
+import personalCenter from '../components/personalCenter';
+import musicPlayer from '../components/musicPlayer';
 export default {
   name: 'Home',
   components: {
-    personalCenter
+    personalCenter,
+    musicPlayer
   },
   data(){
     return {
-      searchInput: ""
+      searchInput: "",
+      loading: false
     }
   },
+
+  computed: {
+    userInfo() {
+      return this.$store.state.userInfo;
+    }
+  },
+
+  watch: {
+    userInfo() {
+      this.getMusicList();
+      this.getLikeList();
+    }
+  },
+
   mounted() {
   },
+
   methods: {
-    search(){
-      axios
-        .get("search", {
-          params: {
-            keywords: this.searchInput
-          }
-        })
-        .then(res => {
-          if(res.code == 200) {
-            this.searchList = res.result.songs
-          }
-        })
-        .catch(err => {
-          console.log(err)
-        })
+    getMusicList() {
+      if (this.userInfo.code == 200) {
+        this.loading = true;
+        axios
+          .get("/user/playlist", {
+            params: {
+              uid: this.userInfo.profile.userId
+            }
+          })
+          .then(res => {
+            this.loading = false;
+            this.$store.commit("musicList", res.playlist)
+          })
+          .catch(err => {
+            this.loading = false;
+            this.$message({
+              message: err.msg,
+              type: "error"
+            });
+          });
+      }
     },
-    playMusic(row){
-      axios
-        .get("song/url", {
-          params: {
-            id: row.id,
-            br: "999000"
-          }
-        })
-        .then(res => {
-          if(res.code == 200){
-            this.url = res.data[0].url;
-            setTimeout(() => {
-              this.$refs.video.play();
-            }, 50);
-          }
-        })
-        .catch(err => {
-          console.log(err)
-        })
+    getLikeList() {
+      if (this.userInfo.code == 200) {
+        axios
+          .get("/likelist", {
+            params: {
+              uid: this.userInfo.profile.userId
+            }
+          })
+          .then(res => {
+            if(res.code == 200) {
+              this.$store.commit("likeList", {type: "add", arr: res.ids})
+            } else {
+              this.$message({
+                message: res.msg,
+                type: "error"
+              });
+            }
+          })
+          .catch(err => {
+            this.$message({
+              message: err.msg,
+              type: "error"
+            });
+          });
+      }
     }
-  },
+  }
 }
 </script>
 

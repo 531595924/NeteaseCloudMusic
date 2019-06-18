@@ -54,7 +54,10 @@
             v-if="nowPlayMusic.id"
             class="nowMusicInfo flex"
           >
-            <div class="nowMusicInfo_img">
+            <div
+              class="nowMusicInfo_img"
+              @click="$router.push({name: '音乐播放'})"
+            >
               <img :src="nowPlayMusic.al.picUrl">
             </div>
             <div class="nowMusicInfo_text">
@@ -83,19 +86,12 @@
         </transition>
       </el-main>
     </el-container>
-    <el-footer>
-      <musicPlayer />
-    </el-footer>
   </el-container>
 </template>
 
 <script>
-import musicPlayer from "../../components/musicPlayer";
 export default {
   name: "Music",
-  components: {
-    musicPlayer
-  },
   data() {
     return {
       asideList: [
@@ -134,18 +130,21 @@ export default {
           ]
         }
       ],
-      asideLoading: false,
-      musicList: []
+      asideLoading: false
     };
   },
   computed: {
     nowPlayMusic() {
       return this.$store.state.nowPlayMusic;
     },
+    musicList() {
+      return this.$store.state.musicList;
+    },
     userInfo() {
       return this.$store.state.userInfo;
     },
     myMusicList() {
+      console.log(this.$store.state.musicList)
       return this.musicList.filter(i => !i.subscribed);
     },
     collectionList() {
@@ -153,34 +152,9 @@ export default {
     }
   },
   watch: {
-    userInfo(data) {
-      if (data.code == 200) {
-        this.getMusicList();
-      }
-    }
   },
-  methods: {
-    getMusicList() {
-      this.asideLoading = true;
-      axios
-        .get("/user/playlist", {
-          params: {
-            uid: this.userInfo.profile.userId
-          }
-        })
-        .then(res => {
-          this.asideLoading = false;
-          this.musicList = res.playlist;
-        })
-        .catch(err => {
-          this.asideLoading = false;
-          this.$message({
-            message: err.msg,
-            type: "error"
-          });
-        });
-    }
-  }
+  mounted() {},
+  methods: {},
 };
 </script>
 
@@ -250,6 +224,7 @@ h3 {
   min-height: 50px;
   min-width: 50px;
   max-height: 50px;
+  cursor: pointer;
   max-width: 50px;
   img {
     width: 100%;

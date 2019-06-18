@@ -143,7 +143,7 @@ export default {
       playUrl: "",
       playState: false,
       lineDrag: false,
-      playedTime: "",
+      playedTime: 0,
       playLoading: false
     };
   },
@@ -169,6 +169,12 @@ export default {
     },
     volume(val) {
       this.$refs.video.volume = val / 100;
+    },
+    playedTime(val) {
+      this.$store.commit("playedTime", val);
+    },
+    playState(type) {
+      this.$store.commit("playState", type);
     }
   },
   mounted() {
@@ -202,6 +208,7 @@ export default {
           if (res.code == 200) {
             if(res.data[0].url){
               this.playUrl = res.data[0].url;
+              this.$store.commit("musicUrl", res.data[0].url);
             } else {
               this.$message({
                 message: "歌曲资源失效",
@@ -209,9 +216,6 @@ export default {
               });
               this.nextMusic();
             }
-            setTimeout(() => {
-              this.startPlay();
-            }, 200);
           } else {
             this.$message({
               message: "获取歌曲时发生错误" + res.msg,
@@ -248,7 +252,7 @@ export default {
           if (_this.playState && !_this.lineDrag && (nowId == fnID)) {
             fn();
           }
-        }, 1000);
+        }, 500); // 进度更新速率，影响 歌词进度更新效率
       })();
     },
     suspendMusic() {
@@ -296,7 +300,9 @@ export default {
 }
 
 .musicPlayer {
-  height: 100%;
+  max-height: 56px;
+  min-height: 56px;
+  border-top: 1px solid #ddd;
 }
 
 .playcontrol {

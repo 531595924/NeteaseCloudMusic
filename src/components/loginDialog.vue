@@ -3,12 +3,12 @@
     class="loginDialog"
     title="手机号登录"
     :visible="dialogVisible"
-    @close="$emit('update:dialogVisible', false)"
     width="400px"
+    @close="$emit('update:dialogVisible', false)"
   >
     <el-form
-      :model="phoneLogin"
       ref="loginForm"
+      :model="phoneLogin"
       class="login_form"
     >
       <el-form-item
@@ -32,8 +32,8 @@
         ]"
       >
         <el-input
-          show-password
           v-model="phoneLogin.password"
+          show-password
           placeholder="请输入密码"
           clearable
           prefix-icon="el-icon-lock"

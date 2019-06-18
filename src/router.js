@@ -34,11 +34,6 @@ export default new Router({
                   component: () => import('./views/Music/DiscoverMusic/SongSheet.vue'),
                 },
                 {
-                  path: 'RadioStation',
-                  name: '主播电台',
-                  component: () => import('./views/Music/DiscoverMusic/RadioStation.vue'),
-                },
-                {
                   path: 'Ranking',
                   name: '排行榜',
                   component: () => import('./views/Music/DiscoverMusic/Ranking.vue'),
@@ -66,6 +61,11 @@ export default new Router({
           path: 'Video',
           name: '视频',
           component: () => import('./views/Video')
+        },
+        {
+          path: 'MusicPlay',
+          name: '音乐播放',
+          component: () => import('./views/MusicPlay.vue')
         }
       ]
     }

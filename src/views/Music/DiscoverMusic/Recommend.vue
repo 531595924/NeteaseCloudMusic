@@ -339,6 +339,7 @@ export default {
 <style lang="scss" scoped>
 .Recommend {
   max-width: 1080px;
+  min-width: 710px;
   margin: 0 auto;
 }
 
@@ -410,6 +411,7 @@ export default {
 }
 
 .musicList_item_tootip {
+  width: calc(100% - 16px);
   position: absolute;
   top: 0;
   text-align: left;

@@ -1,5 +1,5 @@
 <template>
-  <div class="DiscoverMusic">
+  <div class="DiscoverMusic flex column">
     <el-tabs
       v-model="nowTab"
       @tab-click="handleClick"
@@ -35,10 +35,6 @@ export default {
           name: "SongSheet"
         },
         {
-          label: "主播电台",
-          name: "RadioStation"
-        },
-        {
           label: "排行榜",
           name: "Ranking"
         },
@@ -54,6 +50,13 @@ export default {
       nowTab: "Recommend"
     };
   },
+  mounted() {
+    this.tabsData.forEach(i => {
+      if(i.label == this.$route.name){
+        this.nowTab = i.name;
+      }
+    });
+  },
   methods: {
     handleClick(el) {
       this.$router.push({name: el.label})
@@ -65,6 +68,7 @@ export default {
 <style scoped>
 .DiscoverMusic {
   padding: 0 30px;
+  height: 100%;
 }
 
 .el-tabs >>> .el-tabs__nav-scroll {

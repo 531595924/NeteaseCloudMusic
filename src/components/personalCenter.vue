@@ -6,8 +6,8 @@
     >
       <div class="portrait">
         <img
-          class="portrait_img"
           v-if="loginType"
+          class="portrait_img"
           :src="userInfo.profile.avatarUrl"
         >
       </div>

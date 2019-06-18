@@ -1,6 +1,7 @@
 <template>
   <div
     v-loading="loading"
+    element-loading-text="歌单加载中。。。"
     class="musicListPage flex column"
   >
     <div
@@ -62,6 +63,23 @@
           <i
             v-if="scope.row.id == $store.state.nowPlayMusic.id"
             class="iconfont icon-volume"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column
+        align="center"
+        width="50"
+      >
+        <template slot-scope="scope">
+          <i
+            v-if="$store.state.likeList.includes(scope.row.id)"
+            class="iconfont icon-heart"
+            @click="like(false, scope.row.id)"
+          />
+          <i
+            v-else
+            class="iconfont icon-heartline"
+            @click="like(true, scope.row.id)"
           />
         </template>
       </el-table-column>
@@ -176,7 +194,35 @@ export default {
       var index = this.data.playlist.tracks.indexOf(row);
       this.$store.commit("switchMusic", {music: row, index: index});
       this.$store.commit("switchMusicList", this.data.playlist.tracks);
+    },
+    like(type, id) {
+      this.loading = true;
+      axios
+        .get(`/like?id=${id}&like=${type}`)
+        .then(res => {
+          this.loading = false;
+          if(res.code == 200) {
+            if(type) {
+              this.$store.commit("likeList", {type: "add", arr: [id]})
+            } else {
+              this.$store.commit("likeList", {type: "del", arr: [id]})
+            }
+          } else {
+            this.$message({
+              type: "error",
+              message: "喜欢失败，请重新点击"
+            })
+          }
+        })
+        .catch(() => {
+          this.loading = false;
+          this.$message({
+            type: "error",
+            message: "喜欢失败，请重新点击"
+          })
+        })
     }
+
   }
 };
 </script>
@@ -270,5 +316,13 @@ export default {
   display: flex;
   align-items: center;
   text-align: center;
+}
+
+
+.icon-heart {
+  color: $colorRed;
+}
+.icon-heart, .icon-heartline {
+  cursor: pointer;
 }
 </style>
