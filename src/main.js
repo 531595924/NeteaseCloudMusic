@@ -1,3 +1,9 @@
+/*
+ * @Author: coldlike 531595924@qq.com 
+ * @Date: 2019-06-19 10:18:41 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-19 10:19:26
+ */
 import Vue from 'vue'
 import './plugins/axios'
 import App from './App.vue'
@@ -73,4 +79,26 @@ Vue.prototype.$specificdateTransformation = function (time, hours, secondes) {
     text += `:${s}`
   }
   return text
+}
+
+/**
+ *  动画滚动到指定位置
+ * @param {class} select 需要滚动的元素class
+ * @param {Number} distance 滚动指定高度，默认为0
+ * @param {Number} time 滚动动画时间，默认500
+ */
+Vue.prototype.$scrollTo = function (select, distance = 0, time = 500) {
+  let el = document.querySelector(select);
+  let stepNumber = 50;
+  let step = (el.scrollTop - distance) / stepNumber;
+  let interval = time / stepNumber;
+  (function fn() {
+    el.scrollTop -= step;
+    stepNumber --;
+    if(stepNumber > 0) {
+      setTimeout(() => {
+        fn();
+      }, interval);
+    }
+  })()
 }

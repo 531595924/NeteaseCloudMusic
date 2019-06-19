@@ -1,3 +1,9 @@
+/*
+ * @Author: coldlike 531595924@qq.com 
+ * @Date: 2019-06-19 10:18:28 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-19 10:19:38
+ */
 <template>
   <div
     ref="lyricBox"
@@ -21,7 +27,7 @@
         :key="index"
         ref="lyricItem"
         class="lyricArr"
-        :class="lrcType(i, index) ? 'active' : ''"
+        :class="index == activeIndex ? 'active' : ''"
       >
         <template
           v-if="i.lrc[0] != '['"
@@ -44,7 +50,8 @@ export default {
   data() {
     return {
       lyricData: {},
-      error: ""
+      error: "",
+      activeIndex: 0
     };
   },
   computed: {
@@ -108,6 +115,19 @@ export default {
           this.roll();
         })
       }
+    },
+    playedTime() {
+      this.reaLrcData.forEach((i, index)=> {
+        this.lrcType(i, index);
+      })
+    },
+    activeIndex(val) {
+      this.$nextTick(() => {
+        let elArr = this.$refs.lyricItem;
+        let el = elArr[val];
+        let h = el.offsetTop - 115;
+        this.$scrollTo(".lyric", h);
+      })
     }
   },
   mounted() {
@@ -160,19 +180,14 @@ export default {
     // 歌词状态切换
     lrcType(item, index) {
       var lrcTime = this.lrcTimeCompute(item.time);
-
       if(this.reaLrcData[index + 1]) {
         var nextLrcTime = this.lrcTimeCompute(this.reaLrcData[index + 1].time);
         if (this.playedTime >= lrcTime && this.playedTime < nextLrcTime) {
-          return true;
-        } else { 
-          return false;
+          this.activeIndex = index;
         }
       } else {
         if (this.playedTime >= lrcTime) {
-          return true;
-        } else {
-          return false;
+          this.activeIndex = index;
         }
       }
     },

@@ -1,3 +1,9 @@
+/*
+ * @Author: coldlike 531595924@qq.com 
+ * @Date: 2019-06-19 10:20:16 
+ * @Last Modified by:   coldlike 531595924@qq.com 
+ * @Last Modified time: 2019-06-19 10:20:16 
+ */
 "use strict";
 
 import Vue from "vue";

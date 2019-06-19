@@ -1,3 +1,9 @@
+/*
+ * @Author: coldlike 531595924@qq.com 
+ * @Date: 2019-06-19 10:18:47 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-19 10:19:46
+ */
 <template>
   <div class="commentItem flex">
     <div
@@ -122,9 +128,8 @@ export default {
   }
 }
 
-
-
 .colorRed {
   color: $colorRed;
 }
+
 </style>

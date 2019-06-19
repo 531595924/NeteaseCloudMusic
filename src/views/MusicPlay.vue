@@ -1,3 +1,9 @@
+/*
+ * @Author: coldlike 531595924@qq.com 
+ * @Date: 2019-06-19 10:18:45 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-19 10:19:42
+ */
 <template>
   <div
     v-if="nowMusic.name && nowMusic.name != ''"
@@ -137,6 +143,11 @@
             :key="i.commentId"
             :props-data="i"
           />
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="1000"
+          />
         </div>
       </div>
     </div>
@@ -184,6 +195,7 @@ export default {
   watch: {
     nowMusic() {
       this.classAnimation = "";
+      this.$scrollTo(".el-main");
       this.$nextTick(() => {
         this.classAnimation = "recordAnimation";
         this.getComment();
@@ -266,6 +278,7 @@ export default {
   background: rgba(250, 250, 250, 1);
   margin: 0 auto;
   max-width: 900px;
+  padding-bottom: 20px;
 }
 
 .top_box {
@@ -281,7 +294,7 @@ export default {
   background: no-repeat center / 120%;
   position: absolute;
   z-index: 1;
-  filter: blur(50px) opacity(30%);
+  filter: blur(50px) opacity(40%);
 }
 
 .phonograph_box, .musicInfo {
@@ -403,5 +416,9 @@ export default {
 
 .comment_box {
   width: 100%;
+}
+
+.el-pagination {
+  text-align: center;
 }
 </style>

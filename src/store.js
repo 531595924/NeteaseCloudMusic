@@ -1,3 +1,9 @@
+/*
+ * @Author: coldlike 531595924@qq.com 
+ * @Date: 2019-06-19 10:17:51 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-19 10:18:16
+ */
 import Vue from 'vue'
 import Vuex from 'vuex'
 
