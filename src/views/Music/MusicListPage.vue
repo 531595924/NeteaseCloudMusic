@@ -1,8 +1,8 @@
 /*
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:20:54 
- * @Last Modified by:   coldlike 531595924@qq.com 
- * @Last Modified time: 2019-06-19 10:20:54 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-21 17:42:44
  */
 <template>
   <div
@@ -26,8 +26,14 @@
             </h5>
           </div>
           <div class="number_box flex">
-            <div><p>歌曲数</p><p>{{ data.playlist.trackCount }}</p></div>
-            <div><p>播放数</p><p>{{ data.playlist.playCount }}</p></div>
+            <div>
+              <p>歌曲数</p>
+              <p>{{ data.playlist.trackCount }}</p>
+            </div>
+            <div>
+              <p>播放数</p>
+              <p>{{ data.playlist.playCount }}</p>
+            </div>
           </div>
         </div>
         <div class="list_user flex flex-center">
@@ -45,7 +51,9 @@
           >
             播放全部
           </el-button>
-          <el-button size="mini">
+          <el-button
+            size="mini"
+          >
             {{ data.playlist.subscribed ? "已收藏" : "收藏" }} ({{ data.playlist.subscribedCount }})
           </el-button>
         </div>
@@ -161,7 +169,7 @@ export default {
     };
   },
   watch: {
-    '$route' () {
+    $route() {
       this.getListInfo();
     }
   },
@@ -169,7 +177,7 @@ export default {
     this.getListInfo();
   },
   methods: {
-    getListInfo(){
+    getListInfo() {
       this.loading = true;
       axios
         .get("/playlist/detail", {
@@ -179,11 +187,12 @@ export default {
         })
         .then(res => {
           this.loading = false;
-          if(res.code == 200) {
+          if (res.code == 200) {
             this.data = res;
           } else {
             this.$message({
               message: "获取歌曲时发生错误" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
@@ -192,13 +201,14 @@ export default {
           this.loading = false;
           this.$message({
             message: err.msg,
+            offset: 70,
             type: "error"
           });
-        })
+        });
     },
-    playMusic(row){
+    playMusic(row) {
       var index = this.data.playlist.tracks.indexOf(row);
-      this.$store.commit("switchMusic", {music: row, index: index});
+      this.$store.commit("switchMusic", { music: row, index: index });
       this.$store.commit("switchMusicList", this.data.playlist.tracks);
     },
     like(type, id) {
@@ -207,34 +217,34 @@ export default {
         .get(`/like?id=${id}&like=${type}`)
         .then(res => {
           this.loading = false;
-          if(res.code == 200) {
-            if(type) {
-              this.$store.commit("likeList", {type: "add", arr: [id]})
+          if (res.code == 200) {
+            if (type) {
+              this.$store.commit("likeList", { type: "add", arr: [id] });
             } else {
-              this.$store.commit("likeList", {type: "del", arr: [id]})
+              this.$store.commit("likeList", { type: "del", arr: [id] });
             }
           } else {
             this.$message({
+              offset: 70,
               type: "error",
               message: "喜欢失败，请重新点击"
-            })
+            });
           }
         })
         .catch(() => {
           this.loading = false;
           this.$message({
+            offset: 70,
             type: "error",
             message: "喜欢失败，请重新点击"
-          })
-        })
+          });
+        });
     }
-
   }
 };
 </script>
 
 <style lang="scss" scoped>
-
 .musicListPage {
   flex: 1;
   min-height: calc(100vh - 120px);
@@ -295,7 +305,7 @@ export default {
   font-size: 12px;
 }
 
-.number_box > div:nth-child(1){
+.number_box > div:nth-child(1) {
   border-right: 1px solid #ccc;
 }
 
@@ -324,11 +334,11 @@ export default {
   text-align: center;
 }
 
-
 .icon-heart {
   color: $colorRed;
 }
-.icon-heart, .icon-heartline {
+.icon-heart,
+.icon-heartline {
   cursor: pointer;
 }
 </style>

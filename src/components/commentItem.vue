@@ -2,21 +2,21 @@
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:18:47 
  * @Last Modified by: coldlike 531595924@qq.com
- * @Last Modified time: 2019-06-19 10:19:46
+ * @Last Modified time: 2019-06-21 17:44:40
  */
 <template>
   <div class="commentItem flex">
     <div
       class="portrait"
-      :style="{backgroundImage: `url(${propsData.user.avatarUrl})`}"
+      :style="{backgroundImage: `url(${propsdata.user.avatarUrl})`}"
     />
     <div class="comment_right">
       <div class="comment_right_top">
-        <span class="user">{{ propsData.user.nickname }}：</span>
-        {{ propsData.content }}
+        <span class="user">{{ propsdata.user.nickname }}：</span>
+        {{ propsdata.content }}
       </div>
       <div
-        v-for="i in propsData.beReplied"
+        v-for="i in propsdata.beReplied"
         :key="i.beRepliedCommentId"
         class="comment_release"
       >
@@ -25,16 +25,21 @@
       </div>
       <div class="comment_right_bottom flex">
         <div class="comment_time">
-          {{ $specificdateTransformation(propsData.time, true) }}
+          {{ $specificdateTransformation(propsdata.time, true) }}
         </div>
         <div class="comment_btn_box">
-          <span :class="propsData.liked ? 'colorRed' : ''">
+          <span
+            :class="propsdata.liked ? 'colorRed' : ''"
+            @click="fabulous()"
+          >
             <i
               class="iconfont"
-              :class="propsData.liked ? 'icon-zan1' : 'icon-zan'"
-            />{{ propsData.likedCount == 0 ? '' : `(${propsData.likedCount})` }}</span>
+              :class="propsdata.liked ? 'icon-zan1' : 'icon-zan'"
+            />
+            {{ propsdata.likedCount == 0 ? '' : `(${propsdata.likedCount})` }}
+          </span>
           <span>分享</span>
-          <span>回复</span>
+          <span @click="$emit('reply')">回复</span>
         </div>
       </div>
     </div>
@@ -44,22 +49,47 @@
 <script>
 export default {
   name: "CommentItem",
-  props:{
-    propsData: {
+  props: {
+    propsdata: {
       type: Object,
-      default(){
-        return {}
-      }
+      required: true
+    },
+    itemId: {
+      type: Number,
+      required: true
+    },
+    type: {
+      type: Number, //0: 歌曲 1: mv 2: 歌单 3: 专辑 4: 电台 5: 视频 6: 动态
+      required: true
     }
   },
-  data() {
-    return {}
-  },
-}
+  methods: {
+    fabulous() {
+      let likeType = this.propsdata.liked ? 0 : 1;
+      axios
+        .get(
+          `/comment/like?id=${this.itemId}&cid=${
+            this.propsdata.commentId
+          }&t=${likeType}&type=${this.type}&timestamp=${new Date().getTime()}`
+        )
+        .then(res => {
+          if (res.code == 200) {
+            this.$emit("liked", likeType == 0 ? false : true);
+          }
+        })
+        .catch(err => {
+          this.$message({
+            offset: 70,
+            type: "error",
+            message: "点赞失败，请重试" + err.msg
+          });
+        });
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>
-
 .portrait {
   min-height: 35px;
   max-height: 35px;
@@ -112,7 +142,7 @@ export default {
     border-right: #aaa solid 1px;
     padding: 0 15px;
     cursor: pointer;
-    transition: color .3s;
+    transition: color 0.3s;
     &:nth-last-child(1) {
       border: none;
     }
@@ -123,13 +153,12 @@ export default {
       font-size: 14px;
     }
     .icon-zan1 {
-        font-size: 16px;
-      }
+      font-size: 16px;
+    }
   }
 }
 
 .colorRed {
   color: $colorRed;
 }
-
 </style>

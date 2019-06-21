@@ -2,7 +2,7 @@
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:18:45 
  * @Last Modified by: coldlike 531595924@qq.com
- * @Last Modified time: 2019-06-19 10:19:42
+ * @Last Modified time: 2019-06-21 17:42:56
  */
 <template>
   <div
@@ -104,9 +104,13 @@
         class="comment_box"
       >
         <h5 class="comment_title">
-          听友评论<span>（已有{{ comment.total }}条评论）</span>
+          听友评论
+          <span>（已有{{ comment.total }}条评论）</span>
         </h5>
-        <div class="editComment">
+        <div
+          class="editComment"
+          @click="reply('music')"
+        >
           <div class="editComment_box">
             <i class="el-icon-edit" />&#160;&#160;发表评论
           </div>
@@ -119,7 +123,11 @@
           <commentItem
             v-for="i in comment.data.topComments"
             :key="i.commentId"
-            :props-data="i"
+            :type="0"
+            :item-id="nowMusic.id"
+            :propsdata="i"
+            @reply="reply('comment', i)"
+            @liked="liked(i, $event)"
           />
         </div>
         <div
@@ -130,7 +138,11 @@
           <commentItem
             v-for="i in comment.data.hotComments"
             :key="i.commentId"
-            :props-data="i"
+            :type="0"
+            :item-id="nowMusic.id"
+            :propsdata="i"
+            @reply="reply('comment', i)"
+            @liked="liked(i, $event)"
           />
         </div>
         <div
@@ -141,20 +153,160 @@
           <commentItem
             v-for="i in comment.data.comments"
             :key="i.commentId"
-            :props-data="i"
+            :type="0"
+            :item-id="nowMusic.id"
+            :propsdata="i"
+            @reply="reply('comment', i)"
+            @liked="liked(i, $event)"
           />
           <el-pagination
             background
             layout="prev, pager, next"
-            :total="1000"
+            :total="comment.total"
+            :current-page.sync="comment.currentPage"
+            :page-size="20"
+            @current-change="getComment"
           />
         </div>
       </div>
+      <div class="right_box">
+        <div
+          v-if="simiList.data.length != 0"
+          v-loading="simiList.loading"
+          class="simiSong"
+        >
+          <h5 class="comment_title">
+            包含这首歌的歌单
+          </h5>
+          <div class="simiSong_box">
+            <div
+              v-for="i in simiList.data"
+              :key="i.id"
+              class="simi_item flex"
+              @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
+            >
+              <div
+                class="simi_img_box"
+                :style="{backgroundImage: `url(${i.coverImgUrl})`}"
+              />
+              <div class="simi_right_box">
+                <p class="simi_item_title">
+                  {{ i.name }}
+                </p>
+                <p class="simi_item_subtitle">
+                  播放：{{ parseInt(i.playCount / 10000) }}万
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="simiSong.data.length != 0"
+          v-loading="simiSong.loading"
+          class="simiSong"
+        >
+          <h5 class="comment_title">
+            相似歌曲
+          </h5>
+          <div class="simiSong_box">
+            <div
+              v-for="i in simiSong.data"
+              :key="i.id"
+              class="simi_item flex"
+            >
+              <div
+                class="simi_img_box"
+                :style="{backgroundImage: `url(${i.album.blurPicUrl})`}"
+              >
+                <div
+                  class="musicList_item_play"
+                  @click.stop="playSongList(i.id)"
+                >
+                  <i class="iconfont icon-play" />
+                </div>
+              </div>
+              <div class="simi_right_box">
+                <p class="simi_item_title">
+                  {{ i.name }}
+                </p>
+                <p class="simi_item_subtitle">
+                  <span
+                    v-for="o in i.artists"
+                    :key="o.id"
+                  >{{ o.name }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="simiUser.data.length != 0"
+          v-loading="simiUser.loading"
+          class="simiUser"
+        >
+          <h5 class="comment_title">
+            喜欢这首歌的人
+          </h5>
+          <div class="simiUser_box">
+            <div
+              v-for="i in simiUser.data"
+              :key="i.id"
+              class="simi_item flex"
+            >
+              <div class="flex user_box_left">
+                <div
+                  class="simi_img_box"
+                  :style="{backgroundImage: `url(${i.avatarUrl})`}"
+                />
+                <p class="user_name">
+                  {{ i.nickname }}
+                </p>
+                <i
+                  v-if="i.gender == 1"
+                  class="iconfont icon-sex_man"
+                />
+                <i
+                  v-if="i.gender == 2"
+                  class="iconfont icon-sex_woman"
+                />
+              </div>
+              <p class="user_time">
+                {{ i.recommendReason }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <el-backtop
+        target=".el-main"
+        :bottom="80"
+      />
     </div>
-    <el-backtop
-      target=".el-main"
-      :bottom="80"
-    />
+    <el-dialog
+      :title="editComment.title"
+      :visible.sync="editComment.visible"
+      width="30%"
+      top="300px"
+      @closed="editComment.id = ''; editComment.input= ''"
+    >
+      <el-input
+        v-model="editComment.input"
+        type="textarea"
+        :rows="3"
+        placeholder="请输入评论..."
+      />
+      <span
+        slot="footer"
+        class="dialog-footer"
+      >
+        <el-button
+          type="primary"
+          size="small"
+          :loading="editComment.loading"
+          @click="toComment"
+        >评 论</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -176,8 +328,29 @@ export default {
       comment: {
         loading: false,
         total: 0,
+        currentPage: 1,
         data: {},
         offset: ""
+      },
+      simiList: {
+        loading: false,
+        data: []
+      },
+      simiSong: {
+        loading: false,
+        data: []
+      },
+      simiUser: {
+        loading: false,
+        data: []
+      },
+      editComment: {
+        visible: false,
+        loading: false,
+        id: "",
+        title: "评论歌曲",
+        type: "music",
+        input: ""
       }
     };
   },
@@ -198,7 +371,11 @@ export default {
       this.$scrollTo(".el-main");
       this.$nextTick(() => {
         this.classAnimation = "recordAnimation";
+        this.comment.currentPage = 1;
         this.getComment();
+        this.getSimiList();
+        this.getSimiSong();
+        this.getSimiUser();
       });
     },
     playState(val) {
@@ -206,8 +383,11 @@ export default {
     }
   },
   mounted() {
-    if(this.nowMusic.id && this.nowMusic.id != ''){
+    if (this.nowMusic.id && this.nowMusic.id != "") {
       this.getComment();
+      this.getSimiList();
+      this.getSimiSong();
+      this.getSimiUser();
     }
   },
   methods: {
@@ -231,6 +411,7 @@ export default {
             }
           } else {
             this.$message({
+              offset: 70,
               type: "error",
               message: "喜欢失败，请重新点击"
             });
@@ -239,22 +420,33 @@ export default {
         .catch(err => {
           this.likeLoading = false;
           this.$message({
+            offset: 70,
             type: "error",
-            message: "喜欢失败，请重新点击" + err
+            message: "喜欢失败，请重新点击" + err.msg
           });
         });
     },
+    // 获取评论
     getComment() {
       this.comment.loading = true;
       axios
-        .get(`/comment/music?id=${this.nowMusic.id}&offset=${0}`)
+        .get(
+          `/comment/music?id=${this.nowMusic.id}&offset=${(this.comment
+            .currentPage -
+            1) *
+            20}&timestamp=${new Date().getTime()}`
+        )
         .then(res => {
           this.comment.loading = false;
           if (res.code == 200) {
             this.comment.data = res;
             this.comment.total = res.total;
+            this.$nextTick(() => {
+              this.$scrollTo(".el-main");
+            });
           } else {
             this.$message({
+              offset: 70,
               type: "error",
               message: "获取评论失败，请重试"
             });
@@ -263,11 +455,144 @@ export default {
         .catch(err => {
           this.comment.loading = false;
           this.$message({
+            offset: 70,
             type: "error",
-            message: "获取评论失败，请重试" + err
+            message: "获取评论失败，请重试" + err.msg
           });
         });
-
+    },
+    // 获取相似歌单
+    getSimiList() {
+      this.simiList.loading = true;
+      axios
+        .get(`/simi/playlist?id=${this.nowMusic.id}`)
+        .then(res => {
+          this.simiList.loading = false;
+          if (res.code == 200) {
+            this.simiList.data = res.playlists;
+          } else {
+            this.$message({
+              offset: 70,
+              type: "error",
+              message: "获取相似歌单失败，请重试"
+            });
+          }
+        })
+        .catch(err => {
+          this.simiList.loading = false;
+          this.$message({
+            offset: 70,
+            type: "error",
+            message: "获取相似歌单失败，请重试" + err.msg
+          });
+        });
+    },
+    // 获取相似歌曲
+    getSimiSong() {
+      this.simiSong.loading = true;
+      axios
+        .get(`/simi/song?id=${this.nowMusic.id}`)
+        .then(res => {
+          this.simiSong.loading = false;
+          if (res.code == 200) {
+            this.simiSong.data = res.songs;
+          } else {
+            this.$message({
+              offset: 70,
+              type: "error",
+              message: "获取相似歌曲失败，请重试"
+            });
+          }
+        })
+        .catch(err => {
+          this.simiSong.loading = false;
+          this.$message({
+            offset: 70,
+            type: "error",
+            message: "获取相似歌曲失败，请重试" + err.msg
+          });
+        });
+    },
+    // 获取最近听歌用户
+    getSimiUser() {
+      this.simiUser.loading = true;
+      axios
+        .get(`/simi/user?id=${this.nowMusic.id}`)
+        .then(res => {
+          this.simiUser.loading = false;
+          if (res.code == 200) {
+            this.simiUser.data = res.userprofiles;
+          } else {
+            this.$message({
+              offset: 70,
+              type: "error",
+              message: "获取最近用户失败，请重试"
+            });
+          }
+        })
+        .catch(err => {
+          this.simiUser.loading = false;
+          this.$message({
+            offset: 70,
+            type: "error",
+            message: "获取最近用户失败，请重试" + err.msg
+          });
+        });
+    },
+    // 点赞
+    liked(item, state) {
+      item.liked = state;
+      if (state) {
+        item.likedCount += 1;
+      } else {
+        item.likedCount -= 1;
+      }
+    },
+    // 回复
+    reply(type, item) {
+      this.editComment.visible = true;
+      this.editComment.type = type;
+      if (type == "music") {
+        this.editComment.title = `歌曲 ${this.nowMusic.name}`;
+        this.editComment.id = this.nowMusic.id;
+      } else if (type == "comment") {
+        this.editComment.title = `回复 ${item.user.nickname}`;
+        this.editComment.id = item.commentId;
+      }
+    },
+    // 发表评论
+    toComment() {
+      this.editComment.loading = true;
+      axios
+        .get("/comment", {
+          params: {
+            t: 1,
+            type: 0,
+            id: this.editComment.id,
+            content: this.editComment.input
+          }
+        })
+        .then(res => {
+          this.editComment.loading = false;
+          this.editComment.visible = false;
+          let arr = this.comment.data.comments;
+          res.comment.likedCount = 0;
+          arr.reverse();
+          arr.push(res.comment);
+          arr.reverse();
+          this.$message({
+            type: "success",
+            message: "发表成功"
+          });
+        })
+        .catch(err => {
+          this.editComment.loading = false;
+          this.$message({
+            offset: 70,
+            type: "error",
+            message: "发表失败" + err.msg
+          });
+        });
     }
   }
 };
@@ -297,7 +622,8 @@ export default {
   filter: blur(50px) opacity(40%);
 }
 
-.phonograph_box, .musicInfo {
+.phonograph_box,
+.musicInfo {
   position: relative;
   z-index: 10;
 }
@@ -377,7 +703,7 @@ export default {
 }
 
 .comment_title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   padding: 5px 0;
   border-bottom: 1px solid #ddd;
@@ -389,6 +715,7 @@ export default {
 }
 
 .editComment {
+  cursor: pointer;
   background-color: #f0f0f2;
   padding: 10px;
   margin-top: 20px;
@@ -420,5 +747,100 @@ export default {
 
 .el-pagination {
   text-align: center;
+}
+
+.right_box {
+  min-width: 245px;
+  max-width: 245px;
+  margin-left: 80px;
+}
+
+.simiSong {
+  margin-bottom: 40px;
+}
+
+.simi_img_box {
+  max-width: 40px;
+  min-width: 40px;
+  max-height: 40px;
+  min-height: 40px;
+  border: 1px solid #eee;
+  background: no-repeat center / 100%;
+  margin-right: 8px;
+  position: relative;
+}
+
+.simi_item {
+  margin-top: 10px;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  &:hover {
+    color: $colorRed;
+  }
+}
+
+.simi_right_box {
+  font-size: 12px;
+  flex: 1;
+  p {
+    max-width: 195px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.simi_item_subtitle {
+  margin-top: 5px;
+  color: #aaa;
+}
+
+.musicList_item_play {
+  width: 26px;
+  height: 26px;
+  border-radius: 100px;
+  border: 1px white solid;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  transition: all 0.3s;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  .icon-play {
+    color: white;
+    font-size: 10px;
+  }
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+}
+
+.user_box_left {
+  align-items: center;
+}
+
+.simiUser {
+  .simi_img_box {
+    min-width: 30px;
+    max-width: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    border-radius: 50px;
+  }
+  .simi_item {
+    justify-content: space-between;
+  }
+}
+
+.icon-sex_man {
+  color: #66c2ff;
+}
+
+.icon-sex_woman {
+  color: #ff66de;
 }
 </style>

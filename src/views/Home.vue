@@ -1,8 +1,8 @@
 /*
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:20:47 
- * @Last Modified by:   coldlike 531595924@qq.com 
- * @Last Modified time: 2019-06-19 10:20:47 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-21 17:43:05
  */
 <template>
   <el-container v-loading="loading">
@@ -22,20 +22,10 @@
             />
             <i
               class="header_btn iconfont icon-right"
-              @click="$router.go(1)" 
+              @click="$router.go(1)"
             />
           </div>
-          <el-input
-            v-model="searchInput"
-            class="searchInput"
-            placeholder="搜索音乐，视频，歌词，电台"
-            size="mini"
-          >
-            <i
-              slot="suffix"
-              class="iconfont icon-search"
-            />
-          </el-input>
+          <search />
         </div>
         <div class="header_right flex flex-center">
           <personalCenter />
@@ -43,8 +33,8 @@
       </div>
     </el-header>
     <el-main>
-      <transition 
-        name="el-fade-in-linear" 
+      <transition
+        name="el-fade-in-linear"
         mode="out-in"
       >
         <router-view />
@@ -55,19 +45,20 @@
 </template> 
 
 <script>
-import personalCenter from '../components/personalCenter';
-import musicPlayer from '../components/musicPlayer';
+import personalCenter from "../components/personalCenter";
+import search from "../components/search";
+import musicPlayer from "../components/musicPlayer";
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
     personalCenter,
+    search,
     musicPlayer
   },
-  data(){
+  data() {
     return {
-      searchInput: "",
       loading: false
-    }
+    };
   },
 
   computed: {
@@ -83,8 +74,7 @@ export default {
     }
   },
 
-  mounted() {
-  },
+  mounted() {},
 
   methods: {
     getMusicList() {
@@ -98,12 +88,13 @@ export default {
           })
           .then(res => {
             this.loading = false;
-            this.$store.commit("musicList", res.playlist)
+            this.$store.commit("musicList", res.playlist);
           })
           .catch(err => {
             this.loading = false;
             this.$message({
               message: err.msg,
+              offset: 70,
               type: "error"
             });
           });
@@ -118,11 +109,12 @@ export default {
             }
           })
           .then(res => {
-            if(res.code == 200) {
-              this.$store.commit("likeList", {type: "add", arr: res.ids})
+            if (res.code == 200) {
+              this.$store.commit("likeList", { type: "add", arr: res.ids });
             } else {
               this.$message({
                 message: res.msg,
+                offset: 70,
                 type: "error"
               });
             }
@@ -130,13 +122,14 @@ export default {
           .catch(err => {
             this.$message({
               message: err.msg,
+              offset: 70,
               type: "error"
             });
           });
       }
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -180,14 +173,6 @@ export default {
 
 .header_btn:nth-last-child(1) {
   border-left: none;
-}
-
-.searchInput {
-  width: 300px;
-}
-
-.search {
-  margin-top: 3px;
 }
 
 .header_menu {

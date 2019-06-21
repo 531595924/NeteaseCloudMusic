@@ -1,13 +1,13 @@
 /*
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:20:38 
- * @Last Modified by:   coldlike 531595924@qq.com 
- * @Last Modified time: 2019-06-19 10:20:38 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-21 17:44:48
  */
 <template>
   <div id="app">
-    <transition 
-      name="el-fade-in-linear" 
+    <transition
+      name="el-fade-in-linear"
       mode="out-in"
     >
       <router-view />
@@ -16,7 +16,6 @@
 </template>
 
 <style lang="scss">
-
 * {
   margin: 0;
   padding: 0;
@@ -64,18 +63,17 @@ input:-webkit-autofill {
   box-shadow: 0 0 0 1000px white inset;
 }
 
-
-html,body {
+html,
+body {
   height: 100%;
   min-width: 1000px;
   background-color: #fafafa;
 }
 
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #333;
   height: 100%;
 }

@@ -1,8 +1,8 @@
 /*
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:18:58 
- * @Last Modified by:   coldlike 531595924@qq.com 
- * @Last Modified time: 2019-06-19 10:18:58 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-21 17:44:32
  */
 <template>
   <el-dialog
@@ -96,21 +96,23 @@ export default {
               if (res.code == 200) {
                 this.$store.commit("userInfo", res);
                 this.$emit("update:dialogVisible", false);
-                 this.$message({
+                this.$message({
                   message: "登录成功",
                   type: "success"
                 });
               } else {
                 this.$message({
                   message: "登录错误" + res.msg,
+                  offset: 70,
                   type: "error"
                 });
               }
             })
-            .catch((err) => {
+            .catch(err => {
               this.btnLoading = false;
               this.$message({
                 message: err.msg,
+                offset: 70,
                 type: "error"
               });
             });

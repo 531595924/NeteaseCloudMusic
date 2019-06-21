@@ -69,11 +69,13 @@
           @click="$router.push({name: '歌单页', params: { musicListId: i.id }})"
         >
           <div class="musicList_item_top">
-            <div 
-              class="musicList_item_img" 
+            <div
+              class="musicList_item_img"
               :style="{ backgroundImage: `url(${i.coverImgUrl})` }"
             >
-              <div class="musicList_item_num el-icon-headset">
+              <div
+                class="musicList_item_num el-icon-headset"
+              >
                 {{ i.playCount >= 100000 ? parseInt(i.playCount / 10000) + "万" : i.playCount }}
               </div>
               <div class="musicList_item_user el-icon-user">
@@ -119,27 +121,27 @@ export default {
       playList: [],
       playListOffset: 0,
       loading: false
-    }
+    };
   },
   computed: {
     // 分类格式化
     allClassFormat() {
       var all = this.allClass;
-      var format = []
-      for(var key in all.categories) {
-        var item = []
+      var format = [];
+      for (var key in all.categories) {
+        var item = [];
         all.sub.forEach(o => {
-          if(key == o.category) {
-            item.push(o)
+          if (key == o.category) {
+            item.push(o);
           }
         });
-        format.push({name: all.categories[key], children: item})
+        format.push({ name: all.categories[key], children: item });
       }
-      return format
+      return format;
     }
   },
   watch: {
-    screenClass(){
+    screenClass() {
       this.playListOffset = 0;
       this.playList = [];
       this.getPlayList();
@@ -155,11 +157,12 @@ export default {
       axios
         .get("/playlist/catlist")
         .then(res => {
-          if(res.code == 200) {
+          if (res.code == 200) {
             this.allClass = res;
           } else {
             this.$message({
               message: "获取歌单分类失败，" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
@@ -167,20 +170,21 @@ export default {
         .catch(err => {
           this.$message({
             message: "获取歌单分类失败，" + err.msg,
+            offset: 70,
             type: "error"
           });
-
-        })
+        });
     },
     getHotClass() {
       axios
         .get("/playlist/hot")
         .then(res => {
-          if(res.code == 200) {
+          if (res.code == 200) {
             this.hotClass = res.tags;
           } else {
             this.$message({
               message: "获取热门歌单分类失败，" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
@@ -188,13 +192,13 @@ export default {
         .catch(err => {
           this.$message({
             message: "获取热门歌单分类失败，" + err.msg,
+            offset: 70,
             type: "error"
           });
-
-        })
+        });
     },
     getPlayList() {
-      if(!this.loading) {
+      if (!this.loading) {
         this.loading = true;
         axios
           .get("/top/playlist", {
@@ -206,12 +210,13 @@ export default {
           })
           .then(res => {
             this.loading = false;
-            if(res.code == 200) {
-              this.playList = this.playList.concat(res.playlists)
+            if (res.code == 200) {
+              this.playList = this.playList.concat(res.playlists);
               this.playListOffset += 20;
             } else {
               this.$message({
                 message: "获取热门歌单列表失败，" + res.msg,
+                offset: 70,
                 type: "error"
               });
             }
@@ -220,42 +225,43 @@ export default {
             this.loading = false;
             this.$message({
               message: "获取热门歌单列表失败，" + err.msg,
+              offset: 70,
               type: "error"
             });
-          })
+          });
       }
     },
     playSongList(id) {
       axios
         .get(`/playlist/detail?id=${id}`)
         .then(res => {
-          if(res.code == 200){
+          if (res.code == 200) {
             this.$store.commit("switchMusic", {
               music: res.playlist.tracks[0],
               index: 0
-            })
-            this.$store.commit("switchMusicList", res.playlist.tracks)
+            });
+            this.$store.commit("switchMusicList", res.playlist.tracks);
           } else {
             this.$message({
               message: "获取错误" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
         })
         .catch(err => {
           this.$message({
-              message: "获取错误" + err.msg,
-              type: "error"
-            });
-        })
+            message: "获取错误" + err.msg,
+            offset: 70,
+            type: "error"
+          });
+        });
     }
-
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
-
 .SongSheet {
   overflow-y: auto;
 }
@@ -281,7 +287,7 @@ export default {
 }
 
 .classBtn_box_right_item {
-  width: calc((100% - 6px) / 5) ;
+  width: calc((100% - 6px) / 5);
   text-align: center;
   line-height: 35px;
   border: 1px solid #ddd;
@@ -289,7 +295,7 @@ export default {
   position: relative;
   font-size: 12px;
   cursor: pointer;
-  transition: all .3s;
+  transition: all 0.3s;
   span {
     font-size: 8px;
     position: absolute;
@@ -404,7 +410,7 @@ export default {
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.4);
   color: white;
-  transition: all .3s;
+  transition: all 0.3s;
   transform: translateY(-100%);
 
   p {
@@ -444,7 +450,7 @@ export default {
   justify-content: center;
   position: absolute;
   transform: translateY(200%);
-  transition: all .3s;
+  transition: all 0.3s;
   .icon-play {
     color: white;
     font-size: 12px;
@@ -460,7 +466,7 @@ export default {
   text-align: left;
   margin-top: 5px;
   font-size: 14px;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
   line-height: 20px;
   height: 40px;
   overflow: hidden;
@@ -479,7 +485,7 @@ export default {
   color: white;
   right: 0;
   top: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,.5));
+  background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
 }
 
 .musicList_item_user {
@@ -492,6 +498,6 @@ export default {
   color: white;
   bottom: 0;
   left: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.6));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
 }
 </style>

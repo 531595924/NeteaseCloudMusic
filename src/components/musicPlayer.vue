@@ -2,7 +2,7 @@
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:19:12 
  * @Last Modified by: coldlike 531595924@qq.com
- * @Last Modified time: 2019-06-19 10:19:34
+ * @Last Modified time: 2019-06-21 17:44:06
  */
 <template>
   <div class="musicPlayer flex flex-center">
@@ -136,6 +136,7 @@
       @loadstart="playLoading = true"
       @canplay="playLoading = false; startPlay()"
       @canplaythrough="playLoading = false"
+      @error="playError"
     />
   </div>
 </template>
@@ -191,7 +192,10 @@ export default {
       ? JSON.parse(localStorage.nowPlayMusicIndex)
       : false;
     if (nowPlayMusic && nowPlayMusic.id) {
-      this.$store.commit("switchMusic", {music: nowPlayMusic, index: nowPlayMusicIndex});
+      this.$store.commit("switchMusic", {
+        music: nowPlayMusic,
+        index: nowPlayMusicIndex
+      });
     }
     const nowMusicList = localStorage.nowMusicList
       ? JSON.parse(localStorage.nowMusicList)
@@ -202,45 +206,55 @@ export default {
   },
   methods: {
     playMusic(id) {
-      this.playLoading = true;
-      axios
-        .get("song/url", {
-          params: {
-            id: id,
-            br: "999000"
-          }
-        })
-        .then(res => {
-          if (res.code == 200) {
-            if(res.data[0].url){
-              this.playUrl = res.data[0].url;
-              this.$store.commit("musicUrl", res.data[0].url);
-            } else {
-              this.$message({
-                message: "歌曲资源失效",
-                type: "error"
-              });
-              this.nextMusic();
-            }
-          } else {
-            this.$message({
-              message: "获取歌曲时发生错误" + res.msg,
-              type: "error"
-            });
-          }
-        })
-        .catch(err => {
-          this.$message({
-            message: err.msg,
-            type: "error"
-          });
-        });
+      let url = `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
+      this.playUrl = url;
+      this.$store.commit("musicUrl", url);
+      return;
+      // this.playLoading = true;
+      // axios
+      //   .get("song/url", {
+      //     params: {
+      //       id: id,
+      //       br: "999000"
+      //     }
+      //   })
+      //   .then(res => {
+      //     if (res.code == 200) {
+      //       if(res.data[0].url){
+      //         this.playUrl = res.data[0].url;
+      //         this.$store.commit("musicUrl", res.data[0].url);
+      //       } else {
+      //         this.$message({
+      //           message: "歌曲资源失效",
+      //          offset: 70,
+      //          type: "error"
+      //         });
+      //         this.nextMusic();
+      //       }
+      //     } else {
+      //       this.$message({
+      //         message: "获取歌曲时发生错误" + res.msg,
+      //        offset: 70,
+      //        type: "error"
+      //       });
+      //     }
+      //   })
+      //   .catch(err => {
+      //     this.$message({
+      //       message: err.msg,
+      //      offset: 70,
+      //       type: "error"
+      //     });
+      //   });
     },
     tooltipPlay(row) {
-      this.$store.commit("switchMusic", {music: row, index: this.storeNowPlayList.indexOf(row)});
+      this.$store.commit("switchMusic", {
+        music: row,
+        index: this.storeNowPlayList.indexOf(row)
+      });
     },
     startPlay() {
-      if( !this.playLoading ) {
+      if (!this.playLoading) {
         this.playState = true;
         this.$refs.video.play();
         this.getPlayedTime();
@@ -255,14 +269,14 @@ export default {
         var fnID = _this.storeNowPlay.id;
         _this.playedTime = _this.$refs.video.currentTime * 1000;
         setTimeout(() => {
-          if (_this.playState && !_this.lineDrag && (nowId == fnID)) {
+          if (_this.playState && !_this.lineDrag && nowId == fnID) {
             fn();
           }
         }, 500); // 进度更新速率，影响 歌词进度更新效率
       })();
     },
     suspendMusic() {
-      if( !this.playLoading ) {
+      if (!this.playLoading) {
         this.$refs.video.pause();
         this.playState = false;
       }
@@ -278,23 +292,25 @@ export default {
     },
     playError() {
       this.$message({
-        message: "播放错误，请重试",
+        message: "歌曲播放错误（可能由于会员专享），下一曲",
+        offset: 70,
         type: "error"
       });
       this.playState = false;
       this.playLoading = false;
+      this.nextMusic();
     },
     nextMusic() {
       let index = this.$store.state.nowPlayMusicIndex;
-      index = (index + 1) >= this.storeNowPlayList.length ? 0 : index + 1;
+      index = index + 1 >= this.storeNowPlayList.length ? 0 : index + 1;
       const nextMusic = this.storeNowPlayList[index];
-      this.$store.commit("switchMusic", {music: nextMusic, index: index});
+      this.$store.commit("switchMusic", { music: nextMusic, index: index });
     },
     previousMusic() {
       let index = this.$store.state.nowPlayMusicIndex;
-      index = (index - 1) < 0 ? this.storeNowPlayList.length - 1 : index - 1;
+      index = index - 1 < 0 ? this.storeNowPlayList.length - 1 : index - 1;
       const nextMusic = this.storeNowPlayList[index];
-      this.$store.commit("switchMusic", {music: nextMusic, index: index});
+      this.$store.commit("switchMusic", { music: nextMusic, index: index });
     }
   }
 };
@@ -407,13 +423,12 @@ export default {
   font-size: 12px;
   color: $colorRedHover;
 }
-
 </style>
 
 <style scoped>
 .playBtn >>> .el-icon-loading {
   font-size: 20px;
-  transform: translateY(2px)
+  transform: translateY(2px);
 }
 
 .playBtn >>> .el-loading-spinner {

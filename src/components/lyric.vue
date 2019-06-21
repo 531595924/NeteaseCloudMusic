@@ -2,7 +2,7 @@
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:18:28 
  * @Last Modified by: coldlike 531595924@qq.com
- * @Last Modified time: 2019-06-19 10:19:38
+ * @Last Modified time: 2019-06-21 17:44:23
  */
 <template>
   <div
@@ -29,12 +29,8 @@
         class="lyricArr"
         :class="index == activeIndex ? 'active' : ''"
       >
-        <template
-          v-if="i.lrc[0] != '['"
-        >
-          <p>
-            {{ (i.lrc && i.lrc != '') ? i.lrc : '&#160;' }}
-          </p>
+        <template v-if="i.lrc[0] != '['">
+          <p>{{ (i.lrc && i.lrc != '') ? i.lrc : '&#160;' }}</p>
           <p v-if="i.tlyric">
             {{ i.tlyric }}
           </p>
@@ -60,7 +56,7 @@ export default {
     },
     lrcArr() {
       if (this.lyricData.code == 200) {
-        if (this.lyricData.nolyric || this.lyricData.uncollected ) {
+        if (this.lyricData.nolyric || this.lyricData.uncollected) {
           return [];
         } else {
           return this.lyricFormat(this.lyricData.lrc.lyric);
@@ -71,7 +67,12 @@ export default {
     },
     tlyricArr() {
       if (this.lyricData.code == 200) {
-        if (this.lyricData.nolyric || this.lyricData.uncollected || !this.lyricData.tlyric || !this.lyricData.tlyric.lyric) {
+        if (
+          this.lyricData.nolyric ||
+          this.lyricData.uncollected ||
+          !this.lyricData.tlyric ||
+          !this.lyricData.tlyric.lyric
+        ) {
           return [];
         } else {
           return this.lyricFormat(this.lyricData.tlyric.lyric);
@@ -86,7 +87,7 @@ export default {
         var arr = [];
         _this.lrcArr.forEach(i => {
           _this.tlyricArr.forEach(o => {
-            if (i.time.substr(0, 8) == o.time) {
+            if (i.time.substr(0, 8) == o.time.substr(0, 8)) {
               arr.push({
                 time: i.time,
                 lrc: i.lrc,
@@ -110,16 +111,16 @@ export default {
       this.getLyric(val.id);
     },
     reaLrcData(val) {
-      if(val.length != 0) {
+      if (val.length != 0) {
         this.$nextTick(() => {
           this.roll();
-        })
+        });
       }
     },
     playedTime() {
-      this.reaLrcData.forEach((i, index)=> {
+      this.reaLrcData.forEach((i, index) => {
         this.lrcType(i, index);
-      })
+      });
     },
     activeIndex(val) {
       this.$nextTick(() => {
@@ -127,35 +128,37 @@ export default {
         let el = elArr[val];
         let h = el.offsetTop - 115;
         this.$scrollTo(".lyric", h);
-      })
+      });
     }
   },
   mounted() {
-    if(this.nowMusic.id && this.nowMusic.id != "") {
+    if (this.nowMusic.id && this.nowMusic.id != "") {
       this.getLyric(this.nowMusic.id);
     }
   },
   methods: {
     getLyric(id) {
-      this.error = "正在加载歌词。。。"
+      this.error = "正在加载歌词。。。";
       axios
         .get(`/lyric?id=${id}`)
         .then(r => {
           if (r.code == 200) {
-            this.error = ""
+            this.error = "";
             this.lyricData = r;
           } else {
-            this.error = "歌词加载错误" + r.msg
+            this.error = "歌词加载错误" + r.msg;
             this.$message({
               message: "歌词获取失败" + r.msg,
+              offset: 70,
               type: "error"
             });
           }
         })
         .catch(err => {
-          this.error = "歌词加载错误" + err.msg
+          this.error = "歌词加载错误" + err.msg;
           this.$message({
             message: "歌词获取失败" + err.msg,
+            offset: 70,
             type: "error"
           });
         });
@@ -180,7 +183,7 @@ export default {
     // 歌词状态切换
     lrcType(item, index) {
       var lrcTime = this.lrcTimeCompute(item.time);
-      if(this.reaLrcData[index + 1]) {
+      if (this.reaLrcData[index + 1]) {
         var nextLrcTime = this.lrcTimeCompute(this.reaLrcData[index + 1].time);
         if (this.playedTime >= lrcTime && this.playedTime < nextLrcTime) {
           this.activeIndex = index;
@@ -201,10 +204,11 @@ export default {
       (function fn() {
         const tempId = _this.nowMusic.id;
         let item = _this.$refs.lyricItem.find(i => i.classList.length == 2);
-        if(item) {
+        if (item) {
           // item.scrollIntoView({behavior: "smooth", block: "center"}); // scrollIntoView 滚动到可视区域 https://developer.mozilla.org/zh-CN/docs/Web/API/Element/scrollIntoView
         }
-        if(id == tempId) { // 防止切歌后存留残余进程
+        if (id == tempId) {
+          // 防止切歌后存留残余进程
           setTimeout(() => {
             fn();
           }, 200);
@@ -223,7 +227,7 @@ export default {
 }
 
 .lyricArr {
-  transition: color .3s;
+  transition: color 0.3s;
   text-align: left;
   font-size: 14px;
   margin-bottom: 20px;

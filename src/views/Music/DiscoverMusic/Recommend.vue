@@ -130,7 +130,7 @@
                       :key="o.id"
                     >
                       {{ o.name }}
-                      <template v-if="(oindex + 1) < i.song.artists.length"> / </template>
+                      <template v-if="(oindex + 1) < i.song.artists.length">/</template>
                     </span>
                   </p>
                   <p />
@@ -209,6 +209,7 @@ export default {
           } else {
             this.$message({
               message: "获取错误" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
@@ -217,6 +218,7 @@ export default {
           this.bannerLoading = false;
           this.$message({
             message: "获取错误" + err.msg,
+            offset: 70,
             type: "error"
           });
         });
@@ -232,6 +234,7 @@ export default {
           } else {
             this.$message({
               message: "获取错误" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
@@ -240,6 +243,7 @@ export default {
           this.SongListLoading = false;
           this.$message({
             message: "获取错误" + err.msg,
+            offset: 70,
             type: "error"
           });
         });
@@ -255,6 +259,7 @@ export default {
           } else {
             this.$message({
               message: "获取错误" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
@@ -263,20 +268,21 @@ export default {
           this.newSongLoading = false;
           this.$message({
             message: "获取错误" + err.msg,
+            offset: 70,
             type: "error"
           });
         });
     },
     newSongIndex(num) {
-      if(num < 10){
-        return '0' + num
+      if (num < 10) {
+        return "0" + num;
       } else {
-        return num
+        return num;
       }
     },
     playNewSong(index) {
-      if(this.newSong[index].id == this.$store.state.nowPlayMusic.id) {
-        return false
+      if (this.newSong[index].id == this.$store.state.nowPlayMusic.id) {
+        return false;
       }
       this.newSongLoading = true;
       axios
@@ -287,15 +293,16 @@ export default {
         })
         .then(res => {
           this.newSongLoading = false;
-          if(res.code == 200){
+          if (res.code == 200) {
             this.$store.commit("switchMusic", {
               music: res.songs[index],
               index: index
-            })
-            this.$store.commit("switchMusicList", res.songs)
+            });
+            this.$store.commit("switchMusicList", res.songs);
           } else {
             this.$message({
               message: "获取错误" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
@@ -304,33 +311,36 @@ export default {
           this.newSongLoading = false;
           this.$message({
             message: "获取错误" + err.msg,
+            offset: 70,
             type: "error"
           });
-        })
+        });
     },
     playSongList(id) {
       axios
         .get(`/playlist/detail?id=${id}`)
         .then(res => {
-          if(res.code == 200){
+          if (res.code == 200) {
             this.$store.commit("switchMusic", {
               music: res.playlist.tracks[0],
               index: 0
-            })
-            this.$store.commit("switchMusicList", res.playlist.tracks)
+            });
+            this.$store.commit("switchMusicList", res.playlist.tracks);
           } else {
             this.$message({
               message: "获取错误" + res.msg,
+              offset: 70,
               type: "error"
             });
           }
         })
         .catch(err => {
           this.$message({
-              message: "获取错误" + err.msg,
-              type: "error"
-            });
-        })
+            message: "获取错误" + err.msg,
+            offset: 70,
+            type: "error"
+          });
+        });
     }
   }
 };
@@ -421,7 +431,7 @@ export default {
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.4);
   color: white;
-  transition: all .3s;
+  transition: all 0.3s;
   transform: translateY(-100%);
 
   p {
@@ -461,7 +471,7 @@ export default {
   justify-content: center;
   position: absolute;
   transform: translateY(200%);
-  transition: all .3s;
+  transition: all 0.3s;
   .icon-play {
     color: white;
     font-size: 12px;
@@ -477,7 +487,7 @@ export default {
   text-align: left;
   margin-top: 5px;
   font-size: 14px;
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
   line-height: 20px;
   height: 40px;
   overflow: hidden;
@@ -491,7 +501,7 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%)
+  transform: translate(-50%, -50%);
 }
 
 .musicList_item_num {
@@ -503,8 +513,8 @@ export default {
   color: white;
   right: 0;
   top: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,.5));
-  transition: all .3s;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+  transition: all 0.3s;
 }
 
 .musicList_item_img:hover .musicList_item_num {
@@ -543,7 +553,6 @@ export default {
   font-size: 12px;
 }
 
-
 .newSong_item_info {
   display: flex;
   align-items: center;
@@ -574,5 +583,4 @@ export default {
   font-size: 14px;
   width: 14px;
 }
-
 </style>
