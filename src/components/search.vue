@@ -1,8 +1,8 @@
 /*
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-21 17:43:47 
- * @Last Modified by:   coldlike 531595924@qq.com 
- * @Last Modified time: 2019-06-21 17:43:47 
+ * @Last Modified by: coldlike 531595924@qq.com
+ * @Last Modified time: 2019-06-26 10:50:20
  */
 <template>
   <div class="search">
@@ -27,39 +27,35 @@
       <div class="search_tips_box flex">
         <div class="search_box_item">
           <div class="item_title">
-            热门搜索
+            <i class="el-icon-search" />热门搜索
           </div>
           <div class="item_box">
             <div
               v-for="(i, index) in hot"
               :key="index"
               class="item_li"
+              @click="selectSearch(i.first)"
             >
               {{ i.first }}
             </div>
           </div>
         </div>
-        <div class="search_box_item">
+        <div
+          v-if="historyReverse.length != 0"
+          class="search_box_item"
+        >
           <div class="item_title">
-            搜索历史
+            <i class="el-icon-time" />搜索历史
           </div>
-          <div
-            v-if="historyReverse.length != 0"
-            class="item_box"
-          >
+          <div class="item_box">
             <div
               v-for="(i, index) in historyReverse"
               :key="index"
               class="item_li"
+              @click="selectSearch(i)"
             >
               {{ i }}
             </div>
-          </div>
-          <div
-            v-else
-            class="no_history"
-          >
-            暂无搜索历史
           </div>
         </div>
       </div>
@@ -132,38 +128,11 @@ export default {
         });
         return false;
       }
-      if (!this.lock) {
-        this.lock = true;
-        // 添加历史记录
-        let repeat = this.history.indexOf(this.searchInput);
-        if (repeat === -1) {
-          this.history.push(this.searchInput);
-        } else {
-          this.history.splice(repeat, 1);
-          this.history.push(this.searchInput);
-        }
-        axios
-          .get(`/search/multimatch?keywords=${this.searchInput}`)
-          .then(res => {
-            if (res.code == 200) {
-              this.lock = false;
-            } else {
-              this.$message({
-                offset: 70,
-                type: "error",
-                message: "获取热门搜索失败，" + res.msg
-              });
-            }
-          })
-          .catch(err => {
-            this.lock = false;
-            this.$message({
-              offset: 70,
-              type: "error",
-              message: "获取热门搜索失败，" + err.msg
-            });
-          });
-      }
+      this.$router.push({name: "搜索结果页", query: {keyword: this.searchInput}})
+    },
+    selectSearch(val) {
+      this.searchInput = val;
+      this.searchPost();
     }
   }
 };
@@ -178,6 +147,35 @@ export default {
   margin-top: 3px;
   cursor: pointer;
   transition: color 0.3s;
+  &:hover {
+    color: $colorRed;
+  }
+}
+
+.search_box_item {
+  min-width: 222px;
+  font-size: 12px;
+  &:nth-child(1) {
+    border-right: 1px solid #eee;
+  }
+}
+
+.item_title {
+  color: #999;
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  i {
+    color: #bbb;
+    font-size: 14px;
+    margin-right: 5px;
+  }
+}
+
+.item_li {
+  padding: 8px 0 8px 18px;
+  cursor: pointer;
   &:hover {
     color: $colorRed;
   }

@@ -2,7 +2,7 @@
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:18:45 
  * @Last Modified by: coldlike 531595924@qq.com
- * @Last Modified time: 2019-06-21 17:42:56
+ * @Last Modified time: 2019-06-26 09:28:43
  */
 <template>
   <div
@@ -165,7 +165,7 @@
             :total="comment.total"
             :current-page.sync="comment.currentPage"
             :page-size="20"
-            @current-change="getComment"
+            @current-change="getComment(true)"
           />
         </div>
       </div>
@@ -427,23 +427,22 @@ export default {
         });
     },
     // 获取评论
-    getComment() {
+    getComment(roll) {
       this.comment.loading = true;
       axios
         .get(
-          `/comment/music?id=${this.nowMusic.id}&offset=${(this.comment
-            .currentPage -
-            1) *
-            20}&timestamp=${new Date().getTime()}`
+          `/comment/music?id=${this.nowMusic.id}&offset=${(this.comment.currentPage - 1) * 20}&timestamp=${new Date().getTime()}`
         )
         .then(res => {
           this.comment.loading = false;
           if (res.code == 200) {
             this.comment.data = res;
             this.comment.total = res.total;
-            this.$nextTick(() => {
-              this.$scrollTo(".el-main");
-            });
+            if(roll) {
+              this.$nextTick(() => {
+                this.$scrollTo(".el-main", 480);
+              });
+            }
           } else {
             this.$message({
               offset: 70,
