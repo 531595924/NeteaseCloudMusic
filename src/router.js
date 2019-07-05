@@ -2,14 +2,14 @@
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:18:19 
  * @Last Modified by: coldlike 531595924@qq.com
- * @Last Modified time: 2019-06-26 10:22:14
+ * @Last Modified time: 2019-07-05 16:19:37
  */
 import Vue from 'vue'
 import Router from 'vue-router'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -121,6 +121,11 @@ export default new Router({
           path: 'MusicPlay',
           name: '音乐播放',
           component: () => import('./views/MusicPlay.vue')
+        },
+        {
+          path: '*',
+          name: 'error',
+          redirect: { name: '发现音乐' },
         }
       ]
     }
@@ -133,3 +138,13 @@ export default new Router({
     }
   }
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.length === 0) {
+    next({ name: "发现音乐" }); // 未发现路由返回首页
+  } else {
+    next()
+  }
+});
+
+export default router;
