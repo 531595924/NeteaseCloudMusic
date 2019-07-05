@@ -1,8 +1,8 @@
 /*
  * @Author: coldlike 531595924@qq.com 
  * @Date: 2019-06-19 10:20:16 
- * @Last Modified by: coldlike 531595924@qq.com
- * @Last Modified time: 2019-07-03 10:17:18
+ * @Last Modified by:   coldlike 531595924@qq.com 
+ * @Last Modified time: 2019-06-19 10:20:16 
  */
 "use strict";
 
@@ -144,7 +144,7 @@ import store from "../store";
 //全局配置
 let config = {
   //开发环境暂时关闭
-  baseURL: "http://free.idcfengye.com:10805",
+  baseURL: "http://localhost:3000/",
   timeout: 20000, // Timeout
   withCredentials: true, // Check cross-site Access-Control
   headers: {
