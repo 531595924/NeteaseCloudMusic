@@ -150,7 +150,6 @@ export default {
       return this.$store.state.userInfo;
     },
     myMusicList() {
-      console.log(this.$store.state.musicList)
       return this.musicList.filter(i => !i.subscribed);
     },
     collectionList() {

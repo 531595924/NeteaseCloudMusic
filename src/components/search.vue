@@ -127,8 +127,17 @@ export default {
           message: "请输入搜索关键词"
         });
         return false;
+      }else{
+        this.$router.push({name: "搜索结果页", query: {keyword: this.searchInput}})
+        var repeat = this.history.indexOf(this.searchInput);
+        if(repeat == -1){
+          this.history.push(this.searchInput);
+        } else {
+          this.history.splice(repeat,1);
+          this.history.push(this.searchInput);
+        }
       }
-      this.$router.push({name: "搜索结果页", query: {keyword: this.searchInput}})
+
     },
     selectSearch(val) {
       this.searchInput = val;
@@ -155,8 +164,13 @@ export default {
 .search_box_item {
   min-width: 222px;
   font-size: 12px;
+  border-left: 1px solid #eee;
   &:nth-child(1) {
-    border-right: 1px solid #eee;
+    padding-right: 12px;
+    border-left: none;
+  }
+  &:nth-child(2) {
+    padding-left: 12px;
   }
 }
 

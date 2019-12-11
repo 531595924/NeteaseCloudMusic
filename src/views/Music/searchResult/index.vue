@@ -3,7 +3,9 @@
     class="searchResult"
     :loading="loading"
   >
-    搜索<span>"{{ keyword }}"</span>，找到 {{ totalText }}
+    <div class="searchTips">
+      搜索<span>"{{ keyword }}"</span>，找到 {{ totalText }}
+    </div>
     <el-tabs
       v-model="activeName"
       @tab-click="handleClick"
@@ -100,4 +102,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.searchTips {
+  padding: 20px 30px;
+}
 </style>

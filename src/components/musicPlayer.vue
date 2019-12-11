@@ -129,8 +129,10 @@
       </el-popover>
     </div>
     <video
+      v-if="playUrl && playUrl!= ''"
       ref="video"
       class="video"
+      autoplay="autoplay"
       :src="playUrl"
       @ended="playState = false; nextMusic()"
       @loadstart="playLoading = true"
@@ -256,6 +258,7 @@ export default {
     startPlay() {
       if (!this.playLoading) {
         this.playState = true;
+        console.log()
         this.$refs.video.play();
         this.getPlayedTime();
       }
